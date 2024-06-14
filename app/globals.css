@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0b0c0d;
+    --foreground: #fff;
+    --bg-secondary: #161618;
+    --bg-tertiary: #1c1c1f;
+    --bg-quaternary: #232326;
+    --bg-quinary: #28282c;
+    --border: #23252a;
+    --border-s: #292b30;
+    --border-t: #2c2e33;
+    --text-primary: #fff;
+    --text-secondary: #e3e4e6;
+    --text-tertiary: #969799;
+    --text-quaternary: #595a5c;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+
+    --input: #232326;
+    --border: #23252a;
+    --border-s: #292b30;
+    --border-t: #2c2e33;
+    /* --border: 215 27.9% 16.9%; */
+    /* --input: 215 27.9% 16.9%; */
+    --ring: 216 12.2% 83.9%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-secondary text-secondary-foreground tracking-wide;
+  }
+}
+
+@layer components {
+  .card {
+    @apply h-full bg-muted border-t-4 rounded-lg transition-all hover:bg-accent hover:drop-shadow-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus:ring-offset-background;
+  }
+}
