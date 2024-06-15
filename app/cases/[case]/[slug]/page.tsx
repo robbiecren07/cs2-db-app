@@ -8,7 +8,7 @@ import PageTitle from '@/components/PageTitle'
 import { SkinCard } from '@/app/weapons/SkinCard'
 import { GloveCard } from '@/app/gloves/GloveCard'
 
-interface SkinData {
+interface Data {
   knives: Skins[]
   gloves: Gloves[]
 }
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(crate: string, slug: string): Promise<SkinData> {
+async function getData(crate: string, slug: string): Promise<Data> {
   const supabase = createClient()
   const { data, error } = await supabase.from('crates').select('*').eq('slug', crate).single()
 

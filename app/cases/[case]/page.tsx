@@ -10,8 +10,9 @@ import Image from 'next/image'
 import { SkinCard } from '@/app/weapons/SkinCard'
 import { CardContent, Card } from '@/components/ui/card'
 import IntroParagraph from '@/components/IntroParagraph'
+import { rarityOrder } from '@/lib/helpers'
 
-interface SkinData {
+interface Data {
   data: Crates | null
   skins: Skins[]
   gloves: Gloves[]
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(crate: string): Promise<SkinData> {
+async function getData(crate: string): Promise<Data> {
   const supabase = createClient()
   const { data, error } = await supabase.from('crates').select('*').eq('slug', crate).single()
 
@@ -60,16 +61,6 @@ async function getData(crate: string): Promise<SkinData> {
 
   if (gloveError || !gloveData) {
     return { data, skins: skinData, gloves: [] }
-  }
-
-  const rarityOrder: Record<string, number> = {
-    rarity_common_weapon: 7,
-    rarity_uncommon_weapon: 6,
-    rarity_rare_weapon: 5,
-    rarity_mythical_weapon: 4,
-    rarity_legendary_weapon: 3,
-    rarity_ancient_weapon: 2,
-    rarity_contraband_weapon: 1,
   }
 
   return {

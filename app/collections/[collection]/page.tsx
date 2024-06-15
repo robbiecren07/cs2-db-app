@@ -2,14 +2,15 @@ import { Collections, Skins } from '@/types/custom'
 import { createClient } from '@/utils/supabase/client'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { SkinCard } from '@/app/weapons/SkinCard'
 import IntroParagraph from '@/components/IntroParagraph'
-import Image from 'next/image'
+import { rarityOrder } from '@/lib/helpers'
 
-interface CollectionData {
+interface Data {
   data: Collections | null
   skins: Skins[]
 }
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(collection: string): Promise<CollectionData> {
+async function getData(collection: string): Promise<Data> {
   const supabase = createClient()
   const { data, error } = await supabase.from('collections').select('*').eq('slug', collection).single()
 
@@ -64,16 +65,6 @@ async function getData(collection: string): Promise<CollectionData> {
 
   if (skinError || !skinData) {
     return { data, skins: [] }
-  }
-
-  const rarityOrder: Record<string, number> = {
-    rarity_common_weapon: 7,
-    rarity_uncommon_weapon: 6,
-    rarity_rare_weapon: 5,
-    rarity_mythical_weapon: 4,
-    rarity_legendary_weapon: 3,
-    rarity_ancient_weapon: 2,
-    rarity_contraband_weapon: 1,
   }
 
   return {

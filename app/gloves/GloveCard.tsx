@@ -1,9 +1,8 @@
-import { Gloves } from '@/types/custom'
+import { Case, Gloves } from '@/types/custom'
 import Link from 'next/link'
 import Image from 'next/image'
 import { CardContent, Card } from '@/components/ui/card'
 import AvailableInToolTip from '@/components/AvailableInToolTip'
-import { Case } from '@/types/database'
 
 interface Props {
   glove: Gloves

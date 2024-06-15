@@ -1,61 +1,54 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-export interface Case {
-  id: number
-  name: string
-  slug: string
-  image: string
-}
-
 export type Database = {
   public: {
     Tables: {
       agents: {
         Row: {
-          collections_name: string | null
-          collections_slug: string | null
+          collections_name: string
+          collections_slug: string
           description: string | null
           id: string
-          image: string | null
+          image: string
           name: string
           rarity_color: string | null
           rarity_id: string | null
           rarity_name: string | null
-          short_name: string | null
-          slug: string | null
-          sub_name: string | null
+          short_name: string
+          slug: string
+          sub_name: string
           team_id: string | null
           unique_id: string | null
         }
         Insert: {
-          collections_name?: string | null
-          collections_slug?: string | null
+          collections_name?: string
+          collections_slug?: string
           description?: string | null
           id?: string
-          image?: string | null
+          image?: string
           name: string
           rarity_color?: string | null
           rarity_id?: string | null
           rarity_name?: string | null
-          short_name?: string | null
-          slug?: string | null
-          sub_name?: string | null
+          short_name?: string
+          slug?: string
+          sub_name?: string
           team_id?: string | null
           unique_id?: string | null
         }
         Update: {
-          collections_name?: string | null
-          collections_slug?: string | null
+          collections_name?: string
+          collections_slug?: string
           description?: string | null
           id?: string
-          image?: string | null
+          image?: string
           name?: string
           rarity_color?: string | null
           rarity_id?: string | null
           rarity_name?: string | null
-          short_name?: string | null
-          slug?: string | null
-          sub_name?: string | null
+          short_name?: string
+          slug?: string
+          sub_name?: string
           team_id?: string | null
           unique_id?: string | null
         }
@@ -82,18 +75,18 @@ export type Database = {
         }
         Relationships: []
       }
-      collectibles: {
+      collectables: {
         Row: {
           description: string | null
           genuine: boolean | null
           id: string
-          image: string | null
+          image: string
           name: string
-          rarity_color: string | null
-          rarity_id: string | null
-          rarity_name: string | null
-          short_name: string | null
-          slug: string | null
+          rarity_color: string
+          rarity_id: string
+          rarity_name: string
+          short_name: string
+          slug: string
           type: string | null
           unique_id: string | null
         }
@@ -101,13 +94,13 @@ export type Database = {
           description?: string | null
           genuine?: boolean | null
           id?: string
-          image?: string | null
+          image?: string
           name: string
-          rarity_color?: string | null
-          rarity_id?: string | null
-          rarity_name?: string | null
-          short_name?: string | null
-          slug?: string | null
+          rarity_color?: string
+          rarity_id?: string
+          rarity_name?: string
+          short_name?: string
+          slug?: string
           type?: string | null
           unique_id?: string | null
         }
@@ -115,13 +108,13 @@ export type Database = {
           description?: string | null
           genuine?: boolean | null
           id?: string
-          image?: string | null
+          image?: string
           name?: string
-          rarity_color?: string | null
-          rarity_id?: string | null
-          rarity_name?: string | null
-          short_name?: string | null
-          slug?: string | null
+          rarity_color?: string
+          rarity_id?: string
+          rarity_name?: string
+          short_name?: string
+          slug?: string
           type?: string | null
           unique_id?: string | null
         }
@@ -130,176 +123,176 @@ export type Database = {
       collections: {
         Row: {
           id: string
-          image: string | null
+          image: string
           name: string
-          slug: string | null
+          slug: string
         }
         Insert: {
           id: string
-          image?: string | null
+          image: string
           name: string
-          slug?: string | null
+          slug?: string
         }
         Update: {
           id?: string
-          image?: string | null
+          image?: string
           name?: string
-          slug?: string | null
+          slug?: string
         }
         Relationships: []
       }
       crates: {
         Row: {
-          contains: Json | null
-          contains_rare: Json | null
+          contains: Json
+          contains_rare: Json
           description: string | null
-          first_sale_date: string | null
+          first_sale_date: string
           id: string
-          image: string | null
-          name: string
-          short_name: string | null
-          slug: string | null
-          type: string | null
+          image: string
           intro_paragraph: string
+          name: string
+          short_name: string
+          slug: string
+          type: string | null
         }
         Insert: {
-          contains?: Json | null
-          contains_rare?: Json | null
+          contains?: Json
+          contains_rare?: Json
           description?: string | null
-          first_sale_date?: string | null
+          first_sale_date?: string
           id: string
-          image?: string | null
+          image?: string
+          intro_paragraph: string
           name: string
-          short_name?: string | null
-          slug?: string | null
+          short_name?: string
+          slug?: string
           type?: string | null
-          intro_paragraph?: string
         }
         Update: {
-          contains?: Json | null
-          contains_rare?: Json | null
+          contains?: Json
+          contains_rare?: Json
           description?: string | null
-          first_sale_date?: string | null
+          first_sale_date?: string
           id?: string
-          image?: string | null
-          name?: string
-          short_name?: string | null
-          slug?: string | null
-          type?: string | null
+          image?: string
           intro_paragraph?: string
+          name?: string
+          short_name?: string
+          slug?: string
+          type?: string | null
         }
         Relationships: []
       }
       gloves: {
         Row: {
+          case_ids: string[]
           category_id: string | null
-          description: string | null
+          description: string
           id: string
-          image: string | null
-          in_cases: Json | Case[] | null
+          image: string
+          in_cases: Json
           max_float: number | null
           min_float: number | null
           name: string
           paint_index: number | null
           pattern_id: string | null
-          rarity_id: string | null
-          short_name: string | null
-          short_slug: string | null
+          rarity_id: string
+          short_name: string
+          short_slug: string
           slug: string
           souvenir: boolean | null
           stattrak: boolean | null
           team_id: string | null
           weapon_id: string | null
           weapon_id_ref: string | null
-          weapon_name: string | null
-          weapon_slug: string | null
-          case_ids: string[] | []
+          weapon_name: string
+          weapon_slug: string
         }
         Insert: {
+          case_ids?: string[]
           category_id?: string | null
-          description?: string | null
+          description?: string
           id: string
-          image?: string | null
-          in_cases?: Json | null
+          image?: string
+          in_cases?: Json
           max_float?: number | null
           min_float?: number | null
           name: string
           paint_index?: number | null
           pattern_id?: string | null
-          rarity_id?: string | null
-          short_name?: string | null
-          short_slug?: string | null
+          rarity_id: string
+          short_name?: string
+          short_slug: string
           slug: string
           souvenir?: boolean | null
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
           weapon_id_ref?: string | null
-          weapon_name?: string | null
-          weapon_slug?: string | null
-          case_ids?: string[] | []
+          weapon_name?: string
+          weapon_slug: string
         }
         Update: {
+          case_ids?: string[]
           category_id?: string | null
-          description?: string | null
+          description?: string
           id?: string
-          image?: string | null
-          in_cases?: Json | null
+          image?: string
+          in_cases?: Json
           max_float?: number | null
           min_float?: number | null
           name?: string
           paint_index?: number | null
           pattern_id?: string | null
-          rarity_id?: string | null
-          short_name?: string | null
-          short_slug?: string | null
+          rarity_id?: string
+          short_name?: string
+          short_slug?: string
           slug?: string
           souvenir?: boolean | null
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
           weapon_id_ref?: string | null
-          weapon_name?: string | null
-          weapon_slug?: string | null
-          case_ids?: string[] | []
+          weapon_name?: string
+          weapon_slug?: string
         }
         Relationships: []
       }
       patches: {
         Row: {
-          description: string | null
+          description: string
           id: string
-          image: string | null
+          image: string
           name: string
-          rarity_color: string | null
-          rarity_id: string | null
-          rarity_name: string | null
-          short_name: string | null
-          slug: string | null
+          rarity_color: string
+          rarity_id: string
+          rarity_name: string
+          short_name: string
+          slug: string
           unique_id: string | null
         }
         Insert: {
-          description?: string | null
+          description?: string
           id?: string
-          image?: string | null
+          image?: string
           name: string
-          rarity_color?: string | null
-          rarity_id?: string | null
-          rarity_name?: string | null
-          short_name?: string | null
-          slug?: string | null
+          rarity_color?: string
+          rarity_id?: string
+          rarity_name?: string
+          short_name?: string
+          slug: string
           unique_id?: string | null
         }
         Update: {
-          description?: string | null
+          description?: string
           id?: string
-          image?: string | null
+          image?: string
           name?: string
-          rarity_color?: string | null
-          rarity_id?: string | null
-          rarity_name?: string | null
-          short_name?: string | null
-          slug?: string | null
+          rarity_color?: string
+          rarity_id?: string
+          rarity_name?: string
+          short_name?: string
+          slug?: string
           unique_id?: string | null
         }
         Relationships: []
@@ -354,25 +347,26 @@ export type Database = {
       }
       skins: {
         Row: {
+          case_ids: string[]
           category_id: string | null
           collections_name: string | null
           collections_slug: string | null
           description: string | null
           id: string
-          image: string | null
-          in_cases: Json | Case[] | null
+          image: string
+          in_cases: Json | null
           max_float: number | null
           min_float: number | null
           name: string
           paint_index: number | null
           pattern_id: string | null
-          pattern_name: string | null
-          rarity_color: string | null
-          rarity_id: string | null
-          rarity_name: string | null
-          short_name: string | null
-          short_slug: string | null
-          slug: string | null
+          pattern_name: string
+          rarity_color: string
+          rarity_id: string
+          rarity_name: string
+          short_name: string
+          short_slug: string
+          slug: string
           souvenir: boolean | null
           stattrak: boolean | null
           team_id: string | null
@@ -381,58 +375,58 @@ export type Database = {
           weapon_name: string
           weapon_slug: string
           weapon_type: string | null
-          case_ids: string[] | []
         }
         Insert: {
+          case_ids?: string[]
           category_id?: string | null
           collections_name?: string | null
           collections_slug?: string | null
           description?: string | null
           id?: string
-          image?: string | null
+          image?: string
           in_cases?: Json | null
           max_float?: number | null
           min_float?: number | null
           name: string
           paint_index?: number | null
           pattern_id?: string | null
-          pattern_name?: string | null
-          rarity_color?: string | null
-          rarity_id?: string | null
-          rarity_name?: string | null
-          short_name?: string | null
-          short_slug?: string | null
-          slug?: string | null
+          pattern_name: string
+          rarity_color?: string
+          rarity_id?: string
+          rarity_name?: string
+          short_name?: string
+          short_slug?: string
+          slug?: string
           souvenir?: boolean | null
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
           weapon_id_ref?: string | null
-          weapon_name?: string
-          weapon_slug?: string
+          weapon_name: string
+          weapon_slug: string
           weapon_type?: string | null
-          case_ids?: string[] | []
         }
         Update: {
+          case_ids?: string[]
           category_id?: string | null
           collections_name?: string | null
           collections_slug?: string | null
           description?: string | null
           id?: string
-          image?: string | null
+          image?: string
           in_cases?: Json | null
           max_float?: number | null
           min_float?: number | null
           name?: string
           paint_index?: number | null
           pattern_id?: string | null
-          pattern_name?: string | null
-          rarity_color?: string | null
-          rarity_id?: string | null
-          rarity_name?: string | null
-          short_name?: string | null
-          short_slug?: string | null
-          slug?: string | null
+          pattern_name?: string
+          rarity_color?: string
+          rarity_id?: string
+          rarity_name?: string
+          short_name?: string
+          short_slug?: string
+          slug?: string
           souvenir?: boolean | null
           stattrak?: boolean | null
           team_id?: string | null
@@ -441,7 +435,6 @@ export type Database = {
           weapon_name?: string
           weapon_slug?: string
           weapon_type?: string | null
-          case_ids?: string[] | []
         }
         Relationships: []
       }
@@ -475,102 +468,42 @@ export type Database = {
           }
         ]
       }
-      skins_crates: {
-        Row: {
-          crate_id: string
-          skin_id: string
-        }
-        Insert: {
-          crate_id: string
-          skin_id: string
-        }
-        Update: {
-          crate_id?: string
-          skin_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'skins_crates_crate_id_fkey'
-            columns: ['crate_id']
-            isOneToOne: false
-            referencedRelation: 'crates'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'skins_crates_skin_id_fkey'
-            columns: ['skin_id']
-            isOneToOne: false
-            referencedRelation: 'skins'
-            referencedColumns: ['weapon_id']
-          }
-        ]
-      }
-      skins_wears: {
-        Row: {
-          skin_id: string
-          wear_id: string
-        }
-        Insert: {
-          skin_id: string
-          wear_id: string
-        }
-        Update: {
-          skin_id?: string
-          wear_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'skins_wears_skin_id_fkey'
-            columns: ['skin_id']
-            isOneToOne: false
-            referencedRelation: 'skins'
-            referencedColumns: ['weapon_id']
-          },
-          {
-            foreignKeyName: 'skins_wears_wear_id_fkey'
-            columns: ['wear_id']
-            isOneToOne: false
-            referencedRelation: 'wears'
-            referencedColumns: ['id']
-          }
-        ]
-      }
       souvenir_packages: {
         Row: {
-          contains: Json | null
-          contains_rare: Json | null
+          contains: Json
+          contains_rare: Json
           description: string | null
           first_sale_date: string | null
           id: string
-          image: string | null
+          image: string
           name: string
-          short_name: string | null
-          slug: string | null
-          type: string | null
+          short_name: string
+          slug: string
+          type: string
         }
         Insert: {
-          contains?: Json | null
-          contains_rare?: Json | null
+          contains?: Json
+          contains_rare?: Json
           description?: string | null
           first_sale_date?: string | null
           id: string
-          image?: string | null
+          image?: string
           name: string
-          short_name?: string | null
-          slug?: string | null
-          type?: string | null
+          short_name?: string
+          slug: string
+          type?: string
         }
         Update: {
-          contains?: Json | null
-          contains_rare?: Json | null
+          contains?: Json
+          contains_rare?: Json
           description?: string | null
           first_sale_date?: string | null
           id?: string
-          image?: string | null
+          image?: string
           name?: string
-          short_name?: string | null
-          slug?: string | null
-          type?: string | null
+          short_name?: string
+          slug?: string
+          type?: string
         }
         Relationships: []
       }
@@ -622,12 +555,12 @@ export type Database = {
           recover_time_stand: string | null
           reload_time: string | null
           run_inacc: string | null
-          slug: string | null
+          slug: string
           stand_inacc: string | null
           ttk_long: string | null
           ttk_short: string | null
-          type: string | null
-          weapon_id: string | null
+          type: string
+          weapon_id: string
         }
         Insert: {
           ammo_reserve?: string | null
@@ -655,12 +588,12 @@ export type Database = {
           recover_time_stand?: string | null
           reload_time?: string | null
           run_inacc?: string | null
-          slug?: string | null
+          slug: string
           stand_inacc?: string | null
           ttk_long?: string | null
           ttk_short?: string | null
-          type?: string | null
-          weapon_id?: string | null
+          type: string
+          weapon_id: string
         }
         Update: {
           ammo_reserve?: string | null
@@ -688,12 +621,12 @@ export type Database = {
           recover_time_stand?: string | null
           reload_time?: string | null
           run_inacc?: string | null
-          slug?: string | null
+          slug?: string
           stand_inacc?: string | null
           ttk_long?: string | null
           ttk_short?: string | null
-          type?: string | null
-          weapon_id?: string | null
+          type?: string
+          weapon_id?: string
         }
         Relationships: []
       }

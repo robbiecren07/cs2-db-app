@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
@@ -8,20 +7,19 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        rarity_uncommon_weapon: 'bg-[#5e98d9]',
-        rarity_mythical_weapon: 'bg-[#8847ff]',
-        rarity_legendary_weapon: 'bg-[#d32ce6]',
-        rarity_ancient_weapon: 'bg-[#eb4b4b]',
-        rarity_rare_weapon: 'bg-[#4b69ff]',
+        rarity_uncommon: 'bg-[#5e98d9]',
+        rarity_mythical: 'bg-[#8847ff]',
+        rarity_legendary: 'bg-[#d32ce6]',
         rarity_ancient: 'bg-[#eb4b4b]',
-        rarity_contraband_weapon: 'bg-[#e4ae39]',
-        rarity_common_weapon: 'bg-[#b0c3d9]',
+        rarity_rare: 'bg-[#4b69ff]',
+        rarity_contraband: 'bg-[#e4ae39]',
+        rarity_common: 'bg-[#b0c3d9]',
         souvenir: 'bg-[#ffd700]',
         stattrak: 'bg-[#f89406]',
       },
     },
     defaultVariants: {
-      variant: 'rarity_common_weapon',
+      variant: 'rarity_common',
     },
   }
 )

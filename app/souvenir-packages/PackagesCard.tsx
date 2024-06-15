@@ -11,7 +11,7 @@ interface Props {
 export function PackagesCard({ item, index }: Props) {
   return (
     <Link
-      href={`/souvenir-packages/${item.slug}-souvenir-package`}
+      href={`/souvenir-packages/${item.slug}`}
       className="card group w-full border-accent-foreground"
       target="_self"
     >

@@ -1,19 +1,19 @@
-import { Collections, Skins } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
+import { Collections, Skins, Case } from '@/types/custom'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
-import MainCard from './MainCard'
-import MarketTable from './MarketTable'
 import FloatBar from '@/components/FloatBar'
 import GlobalCollectionCard from '@/components/GlobalCollectionCard'
-import { MiniSkinCard } from './MiniSkinCard'
 import GlobalCaseCard from '@/components/GlobalCaseCard'
-import { Case } from '@/types/database'
+import MiniSkinCard from './MiniSkinCard'
+import MainCard from './MainCard'
+import MarketTable from './MarketTable'
+import { rarityOrder } from '@/lib/helpers'
 
-interface SkinData {
+interface Data {
   skin: Skins | null
   collection: Collections | null
   collectionSkins: Skins[]
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(weapon: string, skin: string): Promise<SkinData> {
+async function getData(weapon: string, skin: string): Promise<Data> {
   const supabase = createClient()
 
   const { data: skinData, error: skinError } = await supabase
@@ -67,16 +67,6 @@ async function getData(weapon: string, skin: string): Promise<SkinData> {
     .select('*')
     .eq('collections_slug', skinData.collections_slug)
     .order('rarity_id', { ascending: true })
-
-  const rarityOrder: Record<string, number> = {
-    rarity_common_weapon: 7,
-    rarity_uncommon_weapon: 6,
-    rarity_rare_weapon: 5,
-    rarity_mythical_weapon: 4,
-    rarity_legendary_weapon: 3,
-    rarity_ancient_weapon: 2,
-    rarity_contraband_weapon: 1,
-  }
 
   return {
     skin: skinData,
@@ -106,7 +96,7 @@ export default async function SkinPage({ params }: Props) {
         grandparent="Weapons"
         grandparentHref="/weapons"
       />
-      <PageTitle title={`${data.name}`} />
+      <PageTitle title={data.name} />
 
       <div className="w-full flex flex-wrap gap-y-10 py-8 lg:py-12">
         <div className="shrink basis-full lg:basis-1/2 px-3 flex flex-col gap-6 h-full max-lg:order-1">

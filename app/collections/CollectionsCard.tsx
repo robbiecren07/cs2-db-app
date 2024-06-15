@@ -1,7 +1,7 @@
 import { Collections } from '@/types/custom'
 import Image from 'next/image'
-import { CardContent, Card } from '@/components/ui/card'
 import Link from 'next/link'
+import { CardContent, Card } from '@/components/ui/card'
 
 interface Props {
   collection: Collections

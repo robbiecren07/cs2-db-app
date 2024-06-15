@@ -1,22 +1,23 @@
 import { Skins, Weapons } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
-import { SkinCard } from '../SkinCard'
 import StatsItem from '@/components/StatsItem'
 import StatBoxContainer from '@/components/StatBoxContainer'
 import CategoryCard from '@/components/CategoryCard'
+import { SkinCard } from '../SkinCard'
+import { rarityOrder } from '@/lib/helpers'
+
+interface Data {
+  skins: Skins[]
+  weaponData: Weapons
+}
 
 type Props = {
   params: { weapon: string }
-}
-
-type SkinsData = {
-  skins: Skins[]
-  weaponData: Weapons
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(weapon: string): Promise<SkinsData> {
+async function getData(weapon: string): Promise<Data> {
   const supabase = createClient()
 
   const { data: skins, error: skinsError } = await supabase
@@ -54,16 +55,6 @@ async function getData(weapon: string): Promise<SkinsData> {
 
   if (skinsError || !skins || weaponError || !weaponData) {
     return { skins: [], weaponData: weaponData }
-  }
-
-  const rarityOrder: Record<string, number> = {
-    rarity_common_weapon: 7,
-    rarity_uncommon_weapon: 6,
-    rarity_rare_weapon: 5,
-    rarity_mythical_weapon: 4,
-    rarity_legendary_weapon: 3,
-    rarity_ancient_weapon: 2,
-    rarity_contraband_weapon: 1,
   }
 
   const sortedSkins = skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999))

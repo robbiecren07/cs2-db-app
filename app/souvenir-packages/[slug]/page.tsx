@@ -1,15 +1,15 @@
-import { Collections, Skins, SouvenirPackages } from '@/types/custom'
+import { Skins, SouvenirPackages } from '@/types/custom'
 import { createClient } from '@/utils/supabase/client'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { rarityOrder } from '@/lib/helpers'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { SkinCard } from '@/app/weapons/SkinCard'
-import IntroParagraph from '@/components/IntroParagraph'
 import Image from 'next/image'
 
-interface SouvenirData {
+interface Data {
   data: SouvenirPackages | null
   skins: Skins[]
 }
@@ -27,15 +27,14 @@ export async function generateStaticParams() {
   }
 
   return data.map((post) => ({
-    slug: `${post.slug}-souvenir-package`,
+    slug: `${post.slug}`,
   }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = params.slug
-  const oldSlug = slug.replace('-souvenir-package', '')
   const supabase = createClient()
-  const { data } = await supabase.from('souvenir_packages').select('*').eq('slug', oldSlug).single()
+  const { data } = await supabase.from('souvenir_packages').select('*').eq('slug', slug).single()
 
   if (!data) {
     return {}
@@ -50,10 +49,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(slug: string): Promise<SouvenirData> {
-  const oldSlug = slug.replace('-souvenir-package', '')
+async function getData(slug: string): Promise<Data> {
   const supabase = createClient()
-  const { data, error } = await supabase.from('souvenir_packages').select('*').eq('slug', oldSlug).single()
+  const { data, error } = await supabase.from('souvenir_packages').select('*').eq('slug', slug).single()
 
   if (error) {
     return { data: null, skins: [] }
@@ -63,16 +61,6 @@ async function getData(slug: string): Promise<SouvenirData> {
 
   if (skinError || !skinData) {
     return { data, skins: [] }
-  }
-
-  const rarityOrder: Record<string, number> = {
-    rarity_common_weapon: 7,
-    rarity_uncommon_weapon: 6,
-    rarity_rare_weapon: 5,
-    rarity_mythical_weapon: 4,
-    rarity_legendary_weapon: 3,
-    rarity_ancient_weapon: 2,
-    rarity_contraband_weapon: 1,
   }
 
   return {

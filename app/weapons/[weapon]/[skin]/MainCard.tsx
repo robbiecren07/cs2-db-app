@@ -1,22 +1,10 @@
-import { Badge } from '@/components/ui/badge'
-import { Skins } from '@/types/custom'
+import { RarityId, Skins } from '@/types/custom'
 import Image from 'next/image'
+import { Badge } from '@/components/ui/badge'
 
 interface Props {
   skin: Skins
 }
-
-type RarityId =
-  | 'rarity_common_weapon'
-  | 'rarity_uncommon_weapon'
-  | 'rarity_rare_weapon'
-  | 'rarity_mythical_weapon'
-  | 'rarity_legendary_weapon'
-  | 'rarity_ancient_weapon'
-  | 'rarity_contraband_weapon'
-  | 'rarity_ancient'
-  | 'souvenir'
-  | 'stattrak'
 
 export default function MainCard({ skin }: Props) {
   return (

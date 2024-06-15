@@ -131,7 +131,7 @@ const otherLinks: {
       { title: 'Souvenir Packages', slug: 'souvenir-packages', image: 'crate_atlanta2017_promo_de_cbble_png.png' },
       { title: 'Agents', slug: 'agents', image: 'customplayer_ctm_fbi_variantf_png.png' },
       { title: 'Pins', slug: 'pins', image: 'collectible_pin_guardian_2_png.png' },
-      { title: 'Patches', slug: 'patches', image: 'collectible_pin_guardian_2_png.png' },
+      { title: 'Patches', slug: 'patches', image: 'patch_howl_png.png' },
     ],
   },
 ]

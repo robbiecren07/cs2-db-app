@@ -5,8 +5,8 @@ import { notFound } from 'next/navigation'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
-import { GloveCard } from './GloveCard'
 import IntroParagraph from '@/components/IntroParagraph'
+import { GloveCard } from './GloveCard'
 
 export const metadata: Metadata = {
   title: 'All CS2 Gloves | Browse Counter-Strike 2 Gloves Collection',

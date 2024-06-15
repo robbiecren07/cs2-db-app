@@ -7,8 +7,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing itemName parameter' }, { status: 400 })
   }
 
-  const prices: any = {}
-
   try {
     const response = await fetch(
       `https://steamcommunity.com/market/priceoverview/?currency=1&appid=730&market_hash_name=${encodeURIComponent(
@@ -26,16 +24,8 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json()
-    if (data.lowest_price) {
-      prices[itemName] = {
-        price: data.lowest_price,
-        url: `https://steamcommunity.com/market/listings/730/${encodeURIComponent(itemName)}`,
-      }
-    } else {
-      prices[itemName] = null
-    }
 
-    return NextResponse.json({ prices })
+    return NextResponse.json({ data })
   } catch (error) {
     return NextResponse.json({ error: 'Error fetching market data', details: error }, { status: 500 })
   }

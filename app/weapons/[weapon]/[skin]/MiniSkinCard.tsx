@@ -1,27 +1,15 @@
-import { Skins } from '@/types/custom'
+import { RarityId, Skins } from '@/types/custom'
 import Image from 'next/image'
+import Link from 'next/link'
 import { CardContent, Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import Link from 'next/link'
 
 interface Props {
   weapon: string
   skin: Skins
 }
 
-type RarityId =
-  | 'rarity_common_weapon'
-  | 'rarity_uncommon_weapon'
-  | 'rarity_rare_weapon'
-  | 'rarity_mythical_weapon'
-  | 'rarity_legendary_weapon'
-  | 'rarity_ancient_weapon'
-  | 'rarity_contraband_weapon'
-  | 'rarity_ancient'
-  | 'souvenir'
-  | 'stattrak'
-
-export function MiniSkinCard({ weapon, skin }: Props) {
+export default function MiniSkinCard({ weapon, skin }: Props) {
   return (
     <Link
       href={`/weapons/${weapon}/${skin.short_slug}`}

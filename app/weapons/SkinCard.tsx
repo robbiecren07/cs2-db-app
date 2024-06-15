@@ -1,9 +1,8 @@
-import { Skins } from '@/types/custom'
-import { Case } from '@/types/database'
+import { RarityId, Skins, Case } from '@/types/custom'
 import Image from 'next/image'
+import Link from 'next/link'
 import { CardContent, Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import Link from 'next/link'
 import AvailableInToolTip from '@/components/AvailableInToolTip'
 
 interface Props {
@@ -12,18 +11,6 @@ interface Props {
   index: number
   children?: React.ReactNode
 }
-
-type RarityId =
-  | 'rarity_common_weapon'
-  | 'rarity_uncommon_weapon'
-  | 'rarity_rare_weapon'
-  | 'rarity_mythical_weapon'
-  | 'rarity_legendary_weapon'
-  | 'rarity_ancient_weapon'
-  | 'rarity_contraband_weapon'
-  | 'rarity_ancient'
-  | 'souvenir'
-  | 'stattrak'
 
 export function SkinCard({ weapon, skin, index, children }: Props) {
   const in_cases: Case[] = typeof skin.in_cases === 'string' ? JSON.parse(skin.in_cases) : skin.in_cases
