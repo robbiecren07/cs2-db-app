@@ -12,7 +12,7 @@ export type Database = {
           image: string
           name: string
           rarity_color: string | null
-          rarity_id: string | null
+          rarity_id: string
           rarity_name: string | null
           short_name: string
           slug: string
@@ -28,7 +28,7 @@ export type Database = {
           image?: string
           name: string
           rarity_color?: string | null
-          rarity_id?: string | null
+          rarity_id?: string
           rarity_name?: string | null
           short_name?: string
           slug?: string
@@ -44,7 +44,7 @@ export type Database = {
           image?: string
           name?: string
           rarity_color?: string | null
-          rarity_id?: string | null
+          rarity_id?: string
           rarity_name?: string | null
           short_name?: string
           slug?: string
@@ -204,7 +204,7 @@ export type Database = {
           stattrak: boolean | null
           team_id: string | null
           weapon_id: string | null
-          weapon_id_ref: string | null
+          weapon_id_ref: string
           weapon_name: string
           weapon_slug: string
         }
@@ -228,7 +228,7 @@ export type Database = {
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
-          weapon_id_ref?: string | null
+          weapon_id_ref?: string
           weapon_name?: string
           weapon_slug: string
         }
@@ -252,7 +252,7 @@ export type Database = {
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
-          weapon_id_ref?: string | null
+          weapon_id_ref?: string
           weapon_name?: string
           weapon_slug?: string
         }
@@ -350,7 +350,7 @@ export type Database = {
           case_ids: string[]
           category_id: string | null
           collections_name: string | null
-          collections_slug: string | null
+          collections_slug: string
           description: string | null
           id: string
           image: string
@@ -371,16 +371,17 @@ export type Database = {
           stattrak: boolean | null
           team_id: string | null
           weapon_id: string | null
-          weapon_id_ref: string | null
+          weapon_id_ref: string
           weapon_name: string
           weapon_slug: string
           weapon_type: string | null
+          featured: boolean
         }
         Insert: {
           case_ids?: string[]
           category_id?: string | null
           collections_name?: string | null
-          collections_slug?: string | null
+          collections_slug?: string
           description?: string | null
           id?: string
           image?: string
@@ -401,16 +402,17 @@ export type Database = {
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
-          weapon_id_ref?: string | null
+          weapon_id_ref?: string
           weapon_name: string
           weapon_slug: string
           weapon_type?: string | null
+          featured?: boolean
         }
         Update: {
           case_ids?: string[]
           category_id?: string | null
           collections_name?: string | null
-          collections_slug?: string | null
+          collections_slug?: string
           description?: string | null
           id?: string
           image?: string
@@ -431,10 +433,11 @@ export type Database = {
           stattrak?: boolean | null
           team_id?: string | null
           weapon_id?: string | null
-          weapon_id_ref?: string | null
+          weapon_id_ref?: string
           weapon_name?: string
           weapon_slug?: string
           weapon_type?: string | null
+          featured?: boolean
         }
         Relationships: []
       }

@@ -1,11 +1,11 @@
 'use client'
 
-import { Agents, Patches } from '@/types/custom'
+import { Agents, Collectables, Patches } from '@/types/custom'
 import { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface Props {
-  item: Patches | Agents
+  item: Patches | Agents | Collectables
 }
 
 interface Prices {

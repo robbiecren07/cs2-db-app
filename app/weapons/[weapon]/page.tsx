@@ -8,12 +8,12 @@ import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import StatsItem from '@/components/StatsItem'
 import StatBoxContainer from '@/components/StatBoxContainer'
 import CategoryCard from '@/components/CategoryCard'
-import { SkinCard } from '../SkinCard'
+import { SkinCard } from '@/components/SkinCard'
 import { rarityOrder } from '@/lib/helpers'
 
 interface Data {
   skins: Skins[]
-  weaponData: Weapons
+  weaponData: Weapons | null
 }
 
 type Props = {
@@ -40,26 +40,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 async function getData(weapon: string): Promise<Data> {
   const supabase = createClient()
+  try {
+    const [skinResponse, weaponsResponse] = await Promise.all([
+      supabase.from('skins').select('*').eq('weapon_slug', weapon).order('short_name', { ascending: true }),
+      supabase.from('weapons').select('*').eq('slug', weapon).single(),
+    ])
 
-  const { data: skins, error: skinsError } = await supabase
-    .from('skins')
-    .select('*')
-    .eq('weapon_slug', weapon)
-    .order('short_name', { ascending: true })
+    const skins = skinResponse.data || []
+    const weaponData = weaponsResponse.data
 
-  const { data: weaponData, error: weaponError } = await supabase
-    .from('weapons')
-    .select('*')
-    .eq('slug', weapon)
-    .single()
-
-  if (skinsError || !skins || weaponError || !weaponData) {
-    return { skins: [], weaponData: weaponData }
+    return {
+      skins: skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)),
+      weaponData,
+    }
+  } catch (error) {
+    return { skins: [], weaponData: null }
   }
-
-  const sortedSkins = skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999))
-
-  return { skins: sortedSkins, weaponData }
 }
 
 export default async function WeaponPage({ params }: Props) {
@@ -96,7 +92,7 @@ export default async function WeaponPage({ params }: Props) {
             <StatsItem title="Movement Speed" stat={weaponData.movement_speed} />
           </StatBoxContainer>
 
-          {weaponData.type === 'knives' ? null : (
+          {weaponData.type === 'knives' || skins[0].weapon_type === 'Special' ? null : (
             <>
               <StatBoxContainer title="Damage Stats">
                 <StatsItem title="Damage SR Armor" stat={weaponData.dam_short_armor} sup="*" />

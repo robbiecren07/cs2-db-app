@@ -15,7 +15,7 @@ export default function MainCard({ skin }: Props) {
       {skin.image && (
         <Image
           alt={`${skin.name} skin modal`}
-          className="h-[384px] w-full aspect-video object-contain"
+          className="h-[192px] md:h-[384px] w-full aspect-video object-contain"
           src={skin.image}
           width="512"
           height="384"

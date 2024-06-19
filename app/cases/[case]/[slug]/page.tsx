@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import PageTitle from '@/components/PageTitle'
-import { SkinCard } from '@/app/weapons/SkinCard'
+import { SkinCard } from '@/components/SkinCard'
 import { GloveCard } from '@/app/gloves/GloveCard'
 
 interface Data {

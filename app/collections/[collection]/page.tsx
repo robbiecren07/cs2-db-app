@@ -6,7 +6,7 @@ import Image from 'next/image'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
-import { SkinCard } from '@/app/weapons/SkinCard'
+import { SkinCard } from '@/components/SkinCard'
 import IntroParagraph from '@/components/IntroParagraph'
 import { rarityOrder } from '@/lib/helpers'
 
@@ -47,29 +47,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `/collections/${collection}`,
     },
+    openGraph: {
+      images: [
+        {
+          url: data.image,
+          width: 512,
+          height: 384,
+          alt: `${data.name} skin modal`,
+        },
+      ],
+    },
   }
 }
 
 async function getData(collection: string): Promise<Data> {
   const supabase = createClient()
-  const { data, error } = await supabase.from('collections').select('*').eq('slug', collection).single()
+  try {
+    const [collectionsResponse, skinsResponse] = await Promise.all([
+      supabase.from('collections').select('*').eq('slug', collection).single(),
+      supabase.from('skins').select('*').eq('collections_slug', collection),
+    ])
 
-  if (error) {
+    const data = collectionsResponse.data
+    const skins = skinsResponse.data || []
+
+    return {
+      data,
+      skins,
+    }
+  } catch (error) {
     return { data: null, skins: [] }
-  }
-
-  const { data: skinData, error: skinError } = await supabase
-    .from('skins')
-    .select('*')
-    .eq('collections_slug', collection)
-
-  if (skinError || !skinData) {
-    return { data, skins: [] }
-  }
-
-  return {
-    data,
-    skins: skinData.sort((a, b) => rarityOrder[a.rarity_id] - rarityOrder[b.rarity_id]),
   }
 }
 

@@ -1,4 +1,4 @@
-import { Patches, RarityId } from '@/types/custom'
+import { Collectables, RarityId } from '@/types/custom'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -28,10 +28,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `/pins/${slug}`,
     },
+    openGraph: {
+      images: [
+        {
+          url: data.image,
+          width: 512,
+          height: 384,
+          alt: `${data.name} skin modal`,
+        },
+      ],
+    },
   }
 }
 
-async function getData(slug: string): Promise<Patches | null> {
+async function getData(slug: string): Promise<Collectables | null> {
   const supabase = createClient()
 
   const { data, error } = await supabase.from('collectables').select('*').eq('slug', slug).single()
@@ -65,7 +75,7 @@ export default async function SkinPage({ params }: Props) {
             {data.image && (
               <Image
                 alt={`${data.name} skin modal`}
-                className="h-[384px] w-full aspect-video object-contain"
+                className="h-[192px] md:h-[384px] w-full aspect-video object-contain"
                 src={data.image}
                 width="512"
                 height="384"

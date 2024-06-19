@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 interface Props {
   crate: Crates
-  index: number
+  index?: number
 }
 
 export function CaseCard({ crate, index }: Props) {
@@ -14,7 +14,7 @@ export function CaseCard({ crate, index }: Props) {
       <Card>
         <CardContent className="flex flex-col w-full h-full justify-between p-4">
           <h2 className="text-lg font-medium transition-colors group-hover:text-white">{crate.name}</h2>
-          <div className="my-4 transition-transform group-hover:scale-110">
+          <div className="my-4 mx-auto transition-transform group-hover:scale-110">
             {crate.image && (
               <Image
                 src={crate.image}
@@ -22,7 +22,7 @@ export function CaseCard({ crate, index }: Props) {
                 height="150"
                 className="aspect-video object-contain"
                 alt={`${crate.name} - visual modal`}
-                priority={index < 15}
+                priority={index ? index < 15 : false}
               />
             )}
           </div>

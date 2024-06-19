@@ -8,11 +8,12 @@ import AvailableInToolTip from '@/components/AvailableInToolTip'
 interface Props {
   weapon: string
   skin: Skins
-  index: number
+  index?: number
+  useTooltip?: boolean
   children?: React.ReactNode
 }
 
-export function SkinCard({ weapon, skin, index, children }: Props) {
+export function SkinCard({ weapon, skin, index, useTooltip = true, children }: Props) {
   const in_cases: Case[] = typeof skin.in_cases === 'string' ? JSON.parse(skin.in_cases) : skin.in_cases
 
   return (
@@ -25,7 +26,13 @@ export function SkinCard({ weapon, skin, index, children }: Props) {
       <Card>
         <CardContent className="flex flex-col h-full p-4">
           {children}
-          <h3 className="text-lg font-medium transition-colors group-hover:text-white">{skin.short_name}</h3>
+          <h3
+            className={`text-lg font-medium transition-colors group-hover:text-white ${
+              !skin.collections_name && 'pb-6'
+            }`}
+          >
+            {skin.short_name}
+          </h3>
           {skin.collections_name && (
             <object className="relative">
               <Link
@@ -45,12 +52,12 @@ export function SkinCard({ weapon, skin, index, children }: Props) {
                 height="150"
                 className="aspect-video object-contain"
                 alt={`${skin.name} - skin modal`}
-                priority={index <= 9}
+                priority={index ? index <= 9 : false}
               />
             )}
           </div>
 
-          {in_cases && <AvailableInToolTip item={{ in_cases }} />}
+          {useTooltip && in_cases && <AvailableInToolTip item={{ in_cases }} />}
 
           <div className="flex flex-wrap gap-2 mt-auto">
             {skin.rarity_id && <Badge variant={skin.rarity_id as RarityId}>{skin.rarity_name}</Badge>}

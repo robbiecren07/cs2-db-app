@@ -13,6 +13,10 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-montserrat)'],
+        mono: ['var(--font-big-shoulders-display)'],
+      },
       colors: {
         border: 'var(--border)',
         'border-s': 'var(--border-s)',

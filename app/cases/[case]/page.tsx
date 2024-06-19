@@ -7,7 +7,7 @@ import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import PageTitle from '@/components/PageTitle'
 import Image from 'next/image'
-import { SkinCard } from '@/app/weapons/SkinCard'
+import { SkinCard } from '@/components/SkinCard'
 import { CardContent, Card } from '@/components/ui/card'
 import IntroParagraph from '@/components/IntroParagraph'
 import { rarityOrder } from '@/lib/helpers'
@@ -36,6 +36,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Explore the ${data.name} in Counter-Strike 2. Discover the best weapon skins and knives available in this case, including their prices and rarity.`,
     alternates: {
       canonical: `/cases/${crate}`,
+    },
+    openGraph: {
+      images: [
+        {
+          url: data.image,
+          width: 512,
+          height: 384,
+          alt: `${data.name} skin modal`,
+        },
+      ],
     },
   }
 }

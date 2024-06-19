@@ -1,4 +1,4 @@
-import { Database } from '@/types/types'
+import { Database } from '@/types/database'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 

@@ -12,7 +12,9 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
+import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import Image from 'next/image'
+import { ChevronDown, SquareMenu } from 'lucide-react'
 
 const components: {
   title: string
@@ -139,7 +141,8 @@ const otherLinks: {
 export function Menu() {
   return (
     <>
-      <NavigationMenu>
+      {/* Desktop Navigation Menu */}
+      <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
           {components.map((component) => (
             <NavigationMenuItem key={component.title}>
@@ -233,6 +236,71 @@ export function Menu() {
           ))}
         </NavigationMenuList>
       </NavigationMenu>
+
+      {/* Mobile Navigation Menu */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <SquareMenu strokeWidth={1} size={36} className="text-accent-foreground lg:hidden" />
+        </SheetTrigger>
+        <SheetContent>
+          <nav className="h-full pt-2 pr-3 text-sm overflow-y-auto">
+            <ul>
+              {components.map((component) => (
+                <li key={component.title}>
+                  <details>
+                    <summary className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                      {component.title}
+                      <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                    </summary>
+                    <ul className="pl-4 pb-4">
+                      {component.subItems.map((subItem) => (
+                        <li key={subItem.slug}>
+                          <Link
+                            href={`/weapons/${subItem.slug}`}
+                            className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                          >
+                            {subItem.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                </li>
+              ))}
+              <li>
+                <Link
+                  href="/gloves"
+                  className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  Gloves
+                </Link>
+              </li>
+              {otherLinks.map((other) => (
+                <li key={other.title}>
+                  <details>
+                    <summary className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                      {other.title}
+                      <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                    </summary>
+                    <ul className="pl-4 pb-2">
+                      {other.subItems.map((subItem) => (
+                        <li key={subItem.slug}>
+                          <Link
+                            href={`/${subItem.slug}`}
+                            className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                          >
+                            {subItem.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </SheetContent>
+      </Sheet>
 
       {/* Screen reader-only navigation for SEO */}
       <nav aria-label="Main Navigation" className="sr-only">

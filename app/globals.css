@@ -38,12 +38,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-secondary text-secondary-foreground tracking-wide;
+    @apply bg-secondary text-secondary-foreground font-sans tracking-wide;
   }
 }
 
 @layer components {
   .card {
-    @apply h-full bg-muted border-t-4 rounded-lg transition-all hover:bg-accent hover:drop-shadow-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus:ring-offset-background;
+    @apply h-full bg-muted border-t-4 rounded-lg transition-all hover:bg-accent hover:drop-shadow-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 }

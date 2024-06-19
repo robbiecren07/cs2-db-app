@@ -41,7 +41,7 @@ export default async function GlovesPage() {
 
       <IntroParagraph content="Welcome to the ultimate collection of CS2 gloves in Counter-Strike 2. Our comprehensive database offers detailed insights into every available glove, showcasing their unique designs, prices, and rarity. Whether you are looking to enhance your in-game style or searching for the rarest finds, this page provides all the information you need. Dive in and explore the latest and most iconic gloves that CS2 has to offer." />
 
-      <div className="w-full grid grid-cols-4 gap-6 py-8 lg:py-12">
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8 lg:py-12">
         {data.map((glove, i) => {
           return <GloveCard key={glove.id} glove={glove} index={i} />
         })}

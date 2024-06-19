@@ -6,7 +6,7 @@ import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import InternalContainer from '@/components/InternalContainer'
 import IntroParagraph from '@/components/IntroParagraph'
-import { CaseCard } from './CaseCard'
+import { CaseCard } from '@/components/CaseCard'
 
 export const metadata: Metadata = {
   title: 'All CS2 Cases | Browse Counter-Strike 2 Cases and Skins',

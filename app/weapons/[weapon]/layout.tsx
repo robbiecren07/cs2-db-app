@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/client'
 
 export async function generateStaticParams() {
   const supabase = createClient()
-  const { data, error } = await supabase.from('weapons').select('slug')
+  const { data, error } = await supabase.from('weapons').select('slug').neq('type', 'gloves')
 
   if (error) {
     return []

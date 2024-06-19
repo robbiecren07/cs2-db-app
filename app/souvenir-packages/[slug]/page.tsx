@@ -6,7 +6,7 @@ import { rarityOrder } from '@/lib/helpers'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
-import { SkinCard } from '@/app/weapons/SkinCard'
+import { SkinCard } from '@/components/SkinCard'
 import Image from 'next/image'
 
 interface Data {
@@ -45,6 +45,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Discover the ${data.name} in Counter-Strike 2. Browse through the unique weapon skins, find detailed information on prices and rarity, and stay updated with the latest additions to the collection.`,
     alternates: {
       canonical: `/souvenir-packages/${slug}`,
+    },
+    openGraph: {
+      images: [
+        {
+          url: data.image,
+          width: 512,
+          height: 384,
+          alt: `${data.name} skin modal`,
+        },
+      ],
     },
   }
 }

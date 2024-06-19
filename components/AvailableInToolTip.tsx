@@ -1,7 +1,7 @@
 'use client'
 
 import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Case } from '@/types/database'
+import { Case } from '@/types/custom'
 import Link from 'next/link'
 import slugify from 'slugify'
 

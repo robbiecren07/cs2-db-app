@@ -35,6 +35,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `/agents/${slug}`,
     },
+    openGraph: {
+      images: [
+        {
+          url: data.image,
+          width: 512,
+          height: 384,
+          alt: `${data.name} skin modal`,
+        },
+      ],
+    },
   }
 }
 

@@ -48,6 +48,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `/gloves/${slug}`,
     },
+    openGraph: {
+      images: [
+        {
+          url: data.image,
+          width: 512,
+          height: 384,
+          alt: `${data.name} skin modal`,
+        },
+      ],
+    },
   }
 }
 
@@ -93,7 +103,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
             {data.image && (
               <Image
                 alt={`${data.name} skin modal`}
-                className="h-[384px] w-full mx-auto aspect-video object-contain"
+                className="h-[192px] md:h-[384px] w-full mx-auto aspect-video object-contain max-sm:object-right"
                 src={data.image}
                 width="512"
                 height="384"
