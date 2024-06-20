@@ -31,7 +31,7 @@ const components: {
       { title: 'Glock-18', slug: 'glock-18', image: 'Glock-18.webp' },
       { title: 'Desert Eagle', slug: 'desert-eagle', image: 'Desert_Eagle.webp' },
       { title: 'P250', slug: 'p250', image: 'P250.webp' },
-      { title: 'Five-Seven', slug: 'five-seven', image: 'Five-Seven.webp' },
+      { title: 'Five-SeveN', slug: 'five-seven', image: 'Five-SeveN.webp' },
       { title: 'CZ75-Auto', slug: 'cz75-auto', image: 'CZ75-Auto.webp' },
       { title: 'Tec-9', slug: 'tec-9', image: 'Tec-9.webp' },
       { title: 'R8 Revolver', slug: 'r8-revolver', image: 'R8_Revolver.webp' },

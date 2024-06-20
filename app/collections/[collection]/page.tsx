@@ -107,10 +107,6 @@ export default async function CollectionPage({ params }: Props) {
               />
             )}
           </div>
-
-          <div className="flex-1">
-            <IntroParagraph content="add intro" />
-          </div>
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
