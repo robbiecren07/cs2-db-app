@@ -4,7 +4,9 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import './globals.css'
 
-const DEFAULT_URL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+const DEFAULT_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : 'http://localhost:3000'
 
 const montserrat = Montserrat({
   subsets: ['latin'],

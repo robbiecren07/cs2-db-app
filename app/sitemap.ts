@@ -12,7 +12,9 @@ import {
 import { createClient } from '@/utils/supabase/client'
 import { MetadataRoute } from 'next'
 
-const BASE_URL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+const BASE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : 'http://localhost:3000'
 
 interface Data {
   agents: Agents[]
