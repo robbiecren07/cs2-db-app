@@ -83,7 +83,7 @@ export default async function Index() {
         </div>
 
         <div className="max-lg:hidden w-full max-w-[512px] flex">
-          <Image src={HeroImage} alt="Karambit Black Blackpearl skin modal" />
+          <Image src={HeroImage} alt="Karambit Black Blackpearl skin modal" priority />
         </div>
       </section>
 

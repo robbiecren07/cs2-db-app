@@ -1,9 +1,10 @@
 import { Montserrat, Big_Shoulders_Display } from 'next/font/google'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import './globals.css'
 
-const defaultUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+const DEFAULT_URL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -18,12 +19,13 @@ const bigShouldersDisplay = Big_Shoulders_Display({
 })
 
 export const metadata = {
-  metadataBase: new URL(defaultUrl),
+  metadataBase: new URL(DEFAULT_URL),
   openGraph: {
     type: 'website',
     locale: 'en_US',
     site_name: 'CS2 Skins DB',
   },
+  creator: 'Robbie Crenshaw',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
         </main>
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!} />
     </html>
   )
 }
