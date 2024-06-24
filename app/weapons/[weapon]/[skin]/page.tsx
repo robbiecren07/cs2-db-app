@@ -123,10 +123,10 @@ export default async function SkinPage({ params }: Props) {
         </div>
 
         <div className="shrink basis-full lg:basis-1/2 self-stretch px-3 max-lg:order-3">
-          {collection || in_cases.length ? (
+          {collection || in_cases ? (
             <div className="w-full flex flex-wrap justify-center p-4 bg-muted rounded-lg">
               {collection && <GlobalCollectionCard collection={collection} />}
-              {in_cases.length && <GlobalCaseCard item={{ in_cases }} />}
+              {in_cases && in_cases.length && <GlobalCaseCard item={{ in_cases }} />}
             </div>
           ) : null}
         </div>

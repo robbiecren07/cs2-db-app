@@ -105,7 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     `${BASE_URL}/collections`,
     `${BASE_URL}/gloves`,
     `${BASE_URL}/patches`,
-    `${BASE_URL}/collectables`,
+    `${BASE_URL}/pins`,
     `${BASE_URL}/souvenir-packages`,
     `${BASE_URL}/weapons`,
   ]
