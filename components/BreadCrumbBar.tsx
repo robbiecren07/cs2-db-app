@@ -19,6 +19,10 @@ interface Props {
   greatGrandparentHref?: string
 }
 
+const DEFAULT_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : 'http://localhost:3000'
+
 export function BreadCrumbBar({
   active,
   parent,
@@ -43,7 +47,7 @@ export function BreadCrumbBar({
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `${process.env.NEXT_PUBLIC_SITE_URL}${item.href}`,
+      item: `${DEFAULT_URL}${item.href}`,
     })),
   }
 
