@@ -116,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...collections.map(({ slug }) => `${BASE_URL}/collections/${slug}`),
     ...gloves.map(({ slug }) => `${BASE_URL}/gloves/${slug}`),
     ...patches.map(({ slug }) => `${BASE_URL}/patches/${slug}`),
-    ...collectables.map(({ slug }) => `${BASE_URL}/collectables/${slug}`),
+    ...collectables.map(({ slug }) => `${BASE_URL}/pins/${slug}`),
     ...packages.map(({ slug }) => `${BASE_URL}/souvenir-packages/${slug}`),
     ...weapons.map(({ slug }) => `${BASE_URL}/weapons/${slug}`),
     ...skins.map((skin) => `${BASE_URL}/weapons/${skin.weapon_slug}/${skin.short_slug}`),
