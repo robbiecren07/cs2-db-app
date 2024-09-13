@@ -20,6 +20,8 @@ type Props = {
   params: { weapon: string }
 }
 
+export const revalidate = 3600
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const weapon = params.weapon
   const supabase = createClient()

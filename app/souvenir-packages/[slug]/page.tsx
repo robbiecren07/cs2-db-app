@@ -18,6 +18,8 @@ type Props = {
   params: { slug: string }
 }
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
   const supabase = createClient()
   const { data, error } = await supabase.from('souvenir_packages').select('slug')

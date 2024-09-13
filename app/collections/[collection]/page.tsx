@@ -19,6 +19,8 @@ type Props = {
   params: { collection: string }
 }
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
   const supabase = createClient()
   const { data, error } = await supabase.from('collections').select('slug')

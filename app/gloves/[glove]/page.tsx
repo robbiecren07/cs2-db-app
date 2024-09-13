@@ -20,6 +20,8 @@ type Props = {
   params: { glove: string }
 }
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
   const supabase = createClient()
   const { data, error } = await supabase.from('gloves').select('*')

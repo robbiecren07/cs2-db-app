@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 3600
+
 async function getData(): Promise<Patches[] | null> {
   const supabase = createClient()
   const { data, error } = await supabase.from('patches').select('*').order('name', { ascending: true })

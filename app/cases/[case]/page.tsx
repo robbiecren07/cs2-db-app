@@ -22,6 +22,8 @@ type Props = {
   params: { case: string }
 }
 
+export const revalidate = 3600
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const crate = params.case
   const supabase = createClient()

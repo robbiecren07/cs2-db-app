@@ -17,6 +17,8 @@ type Props = {
   params: { case: string; slug: string }
 }
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
   return [{ slug: 'knives' }, { slug: 'gloves' }]
 }

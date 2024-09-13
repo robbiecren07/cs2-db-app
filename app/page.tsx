@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 3600
+
 async function getData(): Promise<Data> {
   const supabase = createClient()
   try {

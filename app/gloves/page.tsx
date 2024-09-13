@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 3600
+
 async function getData(): Promise<Gloves[] | null> {
   const supabase = createClient()
   const { data, error } = await supabase.from('gloves').select('*').order('name', { ascending: true })
