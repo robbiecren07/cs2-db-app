@@ -8,7 +8,7 @@ import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import StatsItem from '@/components/StatsItem'
 import StatBoxContainer from '@/components/StatBoxContainer'
 import CategoryCard from '@/components/CategoryCard'
-import { SkinCard } from '@/components/SkinCard'
+import SortFilterContainer from '@/components/SortFilterContainer'
 import { rarityOrder } from '@/lib/helpers'
 
 interface Data {
@@ -73,8 +73,8 @@ export default async function WeaponPage({ params }: Props) {
       <BreadCrumbBar active={skins[0].weapon_name.replace('★ ', '')} parent="Weapons" parentHref="/weapons" />
       <PageTitle title={`Browse All ${weaponData.name} Skins`} />
 
-      <div className="w-full flex max-sm:flex-wrap gap-6 py-8 lg:py-12">
-        <div className="flex-1 flex-shrink-0 basis-[290px] flex flex-col gap-6 h-full">
+      <div className="relative w-full flex max-sm:flex-wrap gap-6 py-8 lg:py-12">
+        <div className="relative flex-1 flex-shrink-0 basis-[290px] flex flex-col gap-6 h-full">
           <CategoryCard
             weaponName={weaponData.name}
             knifeName={weaponData.type === 'knives' ? skins[0].weapon_name : null}
@@ -123,11 +123,7 @@ export default async function WeaponPage({ params }: Props) {
           )}
         </div>
 
-        <div className="flex-1 basis-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skins.map((skin, i) => {
-            return <SkinCard key={skin.id} weapon={weapon} skin={skin} index={i} />
-          })}
-        </div>
+        <SortFilterContainer skins={skins} weapon={weapon} />
       </div>
     </InternalContainer>
   )

@@ -24,7 +24,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
       target="_self"
     >
       <Card>
-        <CardContent className="flex flex-col h-full p-4">
+        <CardContent className="flex flex-col p-4">
           {children}
           <h3
             className={`text-lg font-medium transition-colors group-hover:text-white ${
@@ -61,8 +61,8 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
 
           <div className="flex flex-wrap gap-2 mt-auto">
             {skin.rarity_id && <Badge variant={skin.rarity_id as RarityId}>{skin.rarity_name}</Badge>}
-            {skin.stattrak && <Badge variant="stattrak">StatTrak™</Badge>}
             {skin.souvenir && <Badge variant="souvenir">Souvenir</Badge>}
+            {skin.stattrak && <Badge variant="stattrak">StatTrak™</Badge>}
           </div>
         </CardContent>
       </Card>
