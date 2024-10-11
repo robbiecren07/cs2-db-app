@@ -32,10 +32,10 @@ async function getData(): Promise<Data> {
   try {
     const [crateResponse, skinsResponse, collectionResponse, collectionSkinsResponse, popularSkinsResponse] =
       await Promise.all([
-        supabase.from('crates').select('*').eq('id', 'crate-4904').single(),
-        supabase.from('skins').select('*').contains('case_ids', ['crate-4904']).not('weapon_type', 'in', '(Knives)'),
-        supabase.from('crates').select('*').eq('id', 'crate-4818').single(),
-        supabase.from('skins').select('*').contains('case_ids', ['crate-4818']).not('weapon_type', 'in', '(Knives)'),
+        supabase.from('crates').select('*').eq('id', 'crate-4412').single(),
+        supabase.from('skins').select('*').contains('case_ids', ['crate-4412']).not('weapon_type', 'in', '(Knives)'),
+        supabase.from('crates').select('*').eq('id', 'crate-4001').single(),
+        supabase.from('skins').select('*').contains('case_ids', ['crate-4001']).not('weapon_type', 'in', '(Knives)'),
         supabase.from('skins').select('*').eq('featured', true),
       ])
 
