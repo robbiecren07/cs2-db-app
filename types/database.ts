@@ -126,18 +126,21 @@ export type Database = {
           image: string
           name: string
           slug: string
+          featured: boolean
         }
         Insert: {
           id: string
           image: string
           name: string
           slug?: string
+          featured?: boolean
         }
         Update: {
           id?: string
           image?: string
           name?: string
           slug?: string
+          featured?: boolean
         }
         Relationships: []
       }

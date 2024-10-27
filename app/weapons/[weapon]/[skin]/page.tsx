@@ -12,6 +12,7 @@ import MiniSkinCard from './MiniSkinCard'
 import MainCard from './MainCard'
 import MarketTable from './MarketTable'
 import { rarityOrder } from '@/lib/helpers'
+import { Button } from '@/components/ui/button'
 
 interface Data {
   skin: Skins | null
@@ -121,6 +122,22 @@ export default async function SkinPage({ params }: Props) {
             <MarketTable skin={data} />
           </div>
 
+          <div className="w-full flex items-center justify-center gap-3">
+            <a
+              href={`https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodeURIComponent(
+                data.name
+              )}&ref=YJATPCd833`}
+              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-none 
+              focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              target="_blank"
+              rel="nofollow"
+            >
+              Buy on
+              <img width={27} height={24} src="/dm-ua-logo.png" alt="DMARKET logo" />
+              DMARKET
+            </a>
+          </div>
           <FloatBar minFloat={data.min_float} maxFloat={data.max_float} />
         </div>
 

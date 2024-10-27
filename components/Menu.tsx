@@ -36,6 +36,7 @@ const components: {
       { title: 'Tec-9', slug: 'tec-9', image: 'Tec-9.webp' },
       { title: 'R8 Revolver', slug: 'r8-revolver', image: 'R8_Revolver.webp' },
       { title: 'Dual Berettas', slug: 'dual-berettas', image: 'Dual_Berettas.webp' },
+      { title: 'Zeus x27', slug: 'zeus-x27', image: 'Zeus_x27.webp' },
     ],
     subItemTitle: '',
     subItemTitleSecondary: '',

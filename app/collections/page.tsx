@@ -43,10 +43,22 @@ export default async function CollectionsPage() {
 
       <IntroParagraph content="Welcome to the CS2 Collections page, your comprehensive guide to all the unique weapon collections in Counter-Strike 2. Here, you'll find detailed information on each collection, including the most coveted and rarest skins. Whether you're a seasoned player or new to the game, our database provides everything you need to know about the latest and most iconic collections. Dive in and discover the perfect skins to enhance your gameplay and showcase your style." />
 
-      <div className="w-full grid grid-cols-card gap-6 py-8 lg:py-12">
-        {data.map((collection, index) => {
-          return <CollectionsCard key={collection.id} collection={collection} index={index} />
-        })}
+      <div className="w-full grid gap-4 py-8 lg:py-12">
+        <h2 className="text-3xl font-medium text-accent-foreground max-sm:text-center">Latest Collections</h2>
+        <div className="w-full grid grid-cols-card gap-6">
+          {data.map((collection, index) => {
+            return collection.featured && <CollectionsCard key={collection.id} collection={collection} index={index} />
+          })}
+        </div>
+      </div>
+
+      <div className="w-full grid gap-4 py-8 lg:py-12">
+        <h2 className="text-3xl font-medium text-accent-foreground max-sm:text-center">All Collections</h2>
+        <div className="w-full grid grid-cols-card gap-6">
+          {data.map((collection, index) => {
+            return <CollectionsCard key={collection.id} collection={collection} index={index} />
+          })}
+        </div>
       </div>
     </InternalContainer>
   )

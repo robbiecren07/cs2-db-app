@@ -75,7 +75,7 @@ async function getData(collection: string): Promise<Data> {
 
     return {
       data,
-      skins,
+      skins: skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)),
     }
   } catch (error) {
     return { data: null, skins: [] }
@@ -95,7 +95,7 @@ export default async function CollectionPage({ params }: Props) {
       <BreadCrumbBar active={data.name} parent="Collections" parentHref="/collections" />
       <PageTitle title={data.name} />
 
-      <div className="w-full flex flex-col gap-6 xl:gap-10 pt-4">
+      <div className="w-full flex flex-col gap-6 xl:gap-10 pt-4 pb-8">
         <div className="grow flex flex-col lg:flex-row justify-center items-center gap-4 py-4 lg:py-8">
           <div className="flex-1 flex justify-center items-center">
             {data.image && (
