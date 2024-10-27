@@ -138,6 +138,7 @@ export default async function SkinPage({ params }: Props) {
               DMARKET
             </a>
           </div>
+
           <FloatBar minFloat={data.min_float} maxFloat={data.max_float} />
         </div>
 
