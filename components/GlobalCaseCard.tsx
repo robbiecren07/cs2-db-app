@@ -15,10 +15,14 @@ export default function GlobalCaseCard({ item }: Props) {
   return (
     <>
       {item.in_cases.map((item: Case) => {
+        let caseSlug = 'case'
+        if (item.name.includes('Souvenir')) {
+          caseSlug = 'souvenir-packages'
+        }
         return (
           <div key={item.id} className="w-1/3 p-2 group">
             <Link
-              href={`/cases/${slugify(item.name, { lower: true, strict: true })}`}
+              href={`/${caseSlug}/${slugify(item.name, { lower: true, strict: true })}`}
               className="block w-full"
               target="_self"
             >
