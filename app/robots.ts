@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: '/login',
+      disallow: ['/login', '/api'],
     },
     sitemap: 'https://cs2skinsdb.com/sitemap.xml',
   }

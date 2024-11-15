@@ -23,6 +23,7 @@ const bigShouldersDisplay = Big_Shoulders_Display({
 
 export const metadata = {
   metadataBase: new URL(DEFAULT_URL),
+  robots: 'index, follow',
   openGraph: {
     type: 'website',
     locale: 'en_US',
