@@ -23,9 +23,21 @@ export default function MainCard({ skin }: Props) {
         />
       )}
       <div className="flex flex-wrap gap-2">
-        {skin.rarity_id && <Badge variant={skin.rarity_id as RarityId}>{skin.rarity_name}</Badge>}
-        {skin.stattrak && <Badge variant="stattrak">StatTrak™ Available</Badge>}
-        {skin.souvenir && <Badge variant="souvenir">Souvenir</Badge>}
+        {skin.rarity_id && (
+          <Badge variant={skin.rarity_id as RarityId} aria-label={`Rarity: ${skin.rarity_name}`}>
+            {skin.rarity_name}
+          </Badge>
+        )}
+        {skin.stattrak && (
+          <Badge variant="stattrak" aria-label="StatTrak™ skin">
+            StatTrak™ Available
+          </Badge>
+        )}
+        {skin.souvenir && (
+          <Badge variant="souvenir" aria-label="Souvenir skin">
+            Souvenir
+          </Badge>
+        )}
       </div>
     </div>
   )

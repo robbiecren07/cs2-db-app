@@ -14,6 +14,25 @@ export default function GlobalCaseCard({ item }: Props) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            item.in_cases.map((caseItem) => ({
+              '@context': 'https://schema.org',
+              '@type': 'Product',
+              name: caseItem.name,
+              url: `https://cs2skinsdb.com/${
+                caseItem.name.includes('Souvenir') ? 'souvenir-packages' : 'case'
+              }/${slugify(caseItem.name, { lower: true, strict: true })}`,
+              image: caseItem.image || '',
+              description: `Explore the ${caseItem.name}, a Counter-Strike 2 case featuring unique skins.`,
+              category: caseItem.name.includes('Souvenir') ? 'Souvenir Package' : 'Weapon Case',
+            }))
+          ),
+        }}
+      />
+
       {item.in_cases.map((item: Case) => {
         let caseSlug = 'case'
         if (item.name.includes('Souvenir')) {
@@ -25,6 +44,7 @@ export default function GlobalCaseCard({ item }: Props) {
               href={`/${caseSlug}/${slugify(item.name, { lower: true, strict: true })}`}
               className="block w-full"
               target="_self"
+              aria-label={`View details for ${item.name}`}
             >
               <div className="w-full flex flex-col items-center gap-2">
                 {item.image && (
@@ -36,7 +56,12 @@ export default function GlobalCaseCard({ item }: Props) {
                     alt={item.name}
                   />
                 )}
-                <h3 className="text-sm text-center transition-colors group-hover:text-purple-600">{item.name}</h3>
+                <h3
+                  className="text-sm text-center transition-colors group-hover:text-purple-600"
+                  aria-label={`Case name: ${item.name}`}
+                >
+                  {item.name}
+                </h3>
               </div>
             </Link>
           </div>

@@ -22,6 +22,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
       style={{ borderTopColor: skin.rarity_color ? skin.rarity_color : '' }}
       className="card group w-full"
       target="_self"
+      aria-label={`View details for ${skin.name}`}
     >
       <Card>
         <CardContent className="flex flex-col p-4">
@@ -30,6 +31,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
             className={`text-lg font-medium transition-colors group-hover:text-white ${
               !skin.collections_name && 'pb-6'
             }`}
+            aria-label={`Skin name: ${skin.short_name}`}
           >
             {skin.short_name}
           </h3>
@@ -39,6 +41,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
                 href={`/collections/${skin.collections_slug}`}
                 className="text-xs text-accent-foreground font-light transition-colors hover:text-purple-500"
                 target="_self"
+                aria-label={`View all skins in the ${skin.collections_name} collection`}
               >
                 {skin.collections_name}
               </Link>
@@ -60,9 +63,21 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
           {useTooltip && in_cases && <AvailableInToolTip item={{ in_cases }} />}
 
           <div className="flex flex-wrap gap-2 mt-auto">
-            {skin.rarity_id && <Badge variant={skin.rarity_id as RarityId}>{skin.rarity_name}</Badge>}
-            {skin.souvenir && <Badge variant="souvenir">Souvenir</Badge>}
-            {skin.stattrak && <Badge variant="stattrak">StatTrak™</Badge>}
+            {skin.rarity_id && (
+              <Badge variant={skin.rarity_id as RarityId} aria-label={`Rarity: ${skin.rarity_name}`}>
+                {skin.rarity_name}
+              </Badge>
+            )}
+            {skin.souvenir && (
+              <Badge variant="souvenir" aria-label="Souvenir skin">
+                Souvenir
+              </Badge>
+            )}
+            {skin.stattrak && (
+              <Badge variant="stattrak" aria-label="StatTrak™ skin">
+                StatTrak™
+              </Badge>
+            )}
           </div>
         </CardContent>
       </Card>

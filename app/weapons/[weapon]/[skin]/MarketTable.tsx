@@ -57,8 +57,33 @@ export default function MarketTable({ skin }: Props) {
     return '—'
   }
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: skin.name,
+    category: skin.stattrak ? 'StatTrak™ Skin' : skin.souvenir ? 'Souvenir Skin' : 'Standard Skin',
+    offers: Object.keys(prices)
+      .map((key) => {
+        if (!prices[key]) return null
+        return {
+          '@type': 'Offer',
+          priceCurrency: 'USD',
+          price: prices[key]?.price.replace('$', ''),
+          url: prices[key]?.url,
+          availability: 'https://schema.org/InStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          name: key,
+        }
+      })
+      .filter(Boolean),
+    brand: {
+      '@type': 'Brand',
+      name: 'Steam Community Market',
+    },
+  }
+
   return (
-    <Table>
+    <Table aria-label={`Steam Community Market Prices for ${skin.name}`}>
       <TableCaption>
         * Prices are fetched periodically. Click the price to view it on the Steam Community Market.
       </TableCaption>
@@ -75,7 +100,7 @@ export default function MarketTable({ skin }: Props) {
       <TableBody>
         {error ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center text-red-600">
+            <TableCell colSpan={6} className="text-center text-red-600" aria-label="Error fetching prices">
               {error}
             </TableCell>
           </TableRow>
@@ -112,6 +137,8 @@ export default function MarketTable({ skin }: Props) {
           </>
         )}
       </TableBody>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Table>
   )
 }

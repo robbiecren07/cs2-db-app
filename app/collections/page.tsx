@@ -36,8 +36,27 @@ export default async function CollectionsPage() {
     return notFound()
   }
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'CS2 Collections | Browse All Counter-Strike 2 Collections',
+    description:
+      "Explore all CS2 Collections in Counter-Strike 2. Discover detailed information on each collection's unique weapon skins, prices, and rarity. Stay updated with the latest and most coveted collections in the game.",
+    url: 'https://cs2skinsdb.com/collections',
+    itemListElement: data.map((collection, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: collection.name,
+      description: `Discover skins and items from the ${collection.name} collection.`,
+      image: collection.image,
+      url: `https://cs2skinsdb.com/collections/${collection.slug}`,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active="Collections" />
       <PageTitle title="All CS2 Collections" />
 

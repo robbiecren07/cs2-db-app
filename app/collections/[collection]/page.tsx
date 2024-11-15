@@ -90,8 +90,30 @@ export default async function CollectionPage({ params }: Props) {
     return notFound()
   }
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ProductCollection',
+    name: `${data.name} Collection`,
+    description: `Discover the ${data.name} Collection in Counter-Strike 2. Browse through unique weapon skins, find detailed information on prices and rarity, and stay updated with the latest additions.`,
+    image: data.image,
+    url: `https://cs2skinsdb.com/collections/${data.slug}`,
+    brand: {
+      '@type': 'Thing',
+      name: 'Counter-Strike 2',
+    },
+    isRelatedTo: skins.map((skin) => ({
+      '@type': 'Product',
+      name: skin.name,
+      description: skin.description || `A ${skin.rarity_name} rarity skin for ${skin.weapon_name}.`,
+      image: skin.image,
+      url: `https://cs2skinsdb.com/skins/${skin.slug}`,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active={data.name} parent="Collections" parentHref="/collections" />
       <PageTitle title={data.name} />
 

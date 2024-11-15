@@ -53,6 +53,8 @@ export function BreadCrumbBar({
 
   return (
     <div className="pt-4">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -108,7 +110,6 @@ export function BreadCrumbBar({
           )}
         </BreadcrumbList>
       </Breadcrumb>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
     </div>
   )
 }

@@ -37,8 +37,28 @@ export default async function CasesPage() {
     return notFound()
   }
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'All CS2 Cases | Browse Counter-Strike 2 Cases and Skins',
+    description:
+      'Discover all CS2 cases in our comprehensive database. Browse, compare, and find the best prices for Counter-Strike 2 weapon skins. Stay updated with the latest cases and rare items.',
+    url: 'https://cs2skinsdb.com/cases',
+    itemListElement: data.map((crate, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: crate.name,
+      description: crate.description || `Explore skins and items in the ${crate.name} case.`,
+      url: `https://cs2skinsdb.com/cases/${crate.slug}`,
+      image: crate.image,
+      datePublished: crate.first_sale_date,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active="Cases" />
       <PageTitle title="All CS2 Cases" />
 

@@ -143,20 +143,33 @@ export function Menu() {
   return (
     <>
       {/* Desktop Navigation Menu */}
-      <NavigationMenu className="hidden lg:flex">
+      <NavigationMenu className="hidden lg:flex" aria-label="Desktop Navigation Menu">
         <NavigationMenuList>
           {components.map((component) => (
             <NavigationMenuItem key={component.title}>
-              <NavigationMenuTrigger>{component.title}</NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuTrigger
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-label={`Explore ${component.title}`}
+              >
+                {component.title}
+              </NavigationMenuTrigger>
+              <NavigationMenuContent aria-label={`${component.title} Submenu`}>
                 {component.subItemTitle || component.subItemTitleSecondary ? (
                   <div className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
                     {component.subItemTitle && (
                       <div>
-                        <h3 className="text-sm font-medium mb-2">{component.subItemTitle}</h3>
-                        <ul>
+                        <h3 className="text-sm font-medium mb-2" id={`${component.title}-submenu`}>
+                          {component.subItemTitle}
+                        </h3>
+                        <ul aria-labelledby={`${component.title}-submenu`}>
                           {component.subItems.map((subItem) => (
-                            <ListItem key={subItem.slug} title={subItem.title} href={`/weapons/${subItem.slug}`}>
+                            <ListItem
+                              key={subItem.slug}
+                              title={subItem.title}
+                              href={`/weapons/${subItem.slug}`}
+                              aria-label={`Learn more about ${subItem.title}`}
+                            >
                               <Image
                                 src={`/${subItem.image}`}
                                 width={53}
@@ -172,10 +185,17 @@ export function Menu() {
                     )}
                     {component.subItemTitleSecondary && (
                       <div>
-                        <h3 className="text-sm font-medium mb-2">{component.subItemTitleSecondary}</h3>
-                        <ul>
+                        <h3 className="text-sm font-medium mb-2" id={`${component.title}-submenu-secondary`}>
+                          {component.subItemTitleSecondary}
+                        </h3>
+                        <ul aria-labelledby={`${component.title}-submenu-secondary`}>
                           {component.subItemsSecondary.map((subItem) => (
-                            <ListItem key={subItem.slug} title={subItem.title} href={`/weapons/${subItem.slug}`}>
+                            <ListItem
+                              key={subItem.slug}
+                              title={subItem.title}
+                              href={`/weapons/${subItem.slug}`}
+                              aria-label={`Learn more about ${subItem.title}`}
+                            >
                               <Image
                                 src={`/${subItem.image}`}
                                 width={53}
@@ -191,9 +211,17 @@ export function Menu() {
                     )}
                   </div>
                 ) : (
-                  <ul className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
+                  <ul
+                    aria-label={`${component.title} Options`}
+                    className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5"
+                  >
                     {component.subItems.map((subItem) => (
-                      <ListItem key={subItem.slug} title={subItem.title} href={`/weapons/${subItem.slug}`}>
+                      <ListItem
+                        key={subItem.slug}
+                        title={subItem.title}
+                        href={`/weapons/${subItem.slug}`}
+                        aria-label={`Learn more about ${subItem.title}`}
+                      >
                         <Image
                           src={`/${subItem.image}`}
                           width={53}
@@ -211,16 +239,25 @@ export function Menu() {
           ))}
           <NavigationMenuItem>
             <Link href="/gloves" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Gloves</NavigationMenuLink>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()} aria-label="Explore Gloves">
+                Gloves
+              </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           {otherLinks.map((other) => (
             <NavigationMenuItem key={other.title}>
-              <NavigationMenuTrigger>{other.title}</NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuTrigger aria-haspopup="true" aria-expanded="false" aria-label={`Explore ${other.title}`}>
+                {other.title}
+              </NavigationMenuTrigger>
+              <NavigationMenuContent aria-label={`${other.title} Submenu`}>
                 <ul className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
                   {other.subItems.map((subItem) => (
-                    <ListItem key={subItem.slug} title={subItem.title} href={`/${subItem.slug}`}>
+                    <ListItem
+                      key={subItem.slug}
+                      title={subItem.title}
+                      href={`/${subItem.slug}`}
+                      aria-label={`Learn more about ${subItem.title}`}
+                    >
                       <Image
                         src={`/${subItem.image}`}
                         width={53}
@@ -241,15 +278,23 @@ export function Menu() {
       {/* Mobile Navigation Menu */}
       <Sheet>
         <SheetTrigger asChild>
-          <SquareMenu strokeWidth={1} size={36} className="text-accent-foreground lg:hidden" />
+          <SquareMenu
+            strokeWidth={1}
+            size={36}
+            className="text-accent-foreground lg:hidden"
+            aria-label="Open Mobile Menu"
+          />
         </SheetTrigger>
-        <SheetContent>
-          <nav className="h-full pt-2 pr-3 text-sm overflow-y-auto">
+        <SheetContent aria-label="Mobile Navigation Menu">
+          <nav className="h-full pt-2 pr-3 text-sm overflow-y-auto" aria-label="Mobile Navigation">
             <ul>
               {components.map((component) => (
                 <li key={component.title}>
                   <details>
-                    <summary className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                    <summary
+                      aria-label={`Expand ${component.title} menu`}
+                      className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
                       {component.title}
                       <ChevronDown className="w-4 h-4 transition-transform duration-200" />
                     </summary>
@@ -258,6 +303,7 @@ export function Menu() {
                         <li key={subItem.slug}>
                           <Link
                             href={`/weapons/${subItem.slug}`}
+                            aria-label={`View ${subItem.title}`}
                             className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                           >
                             {subItem.title}
@@ -271,6 +317,7 @@ export function Menu() {
               <li>
                 <Link
                   href="/gloves"
+                  aria-label="View Gloves"
                   className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Gloves
@@ -279,15 +326,19 @@ export function Menu() {
               {otherLinks.map((other) => (
                 <li key={other.title}>
                   <details>
-                    <summary className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                    <summary
+                      aria-label={`Expand ${other.title} menu`}
+                      className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
                       {other.title}
                       <ChevronDown className="w-4 h-4 transition-transform duration-200" />
                     </summary>
-                    <ul className="pl-4 pb-2">
+                    <ul className="pl-4 pb-4">
                       {other.subItems.map((subItem) => (
                         <li key={subItem.slug}>
                           <Link
                             href={`/${subItem.slug}`}
+                            aria-label={`View ${subItem.title}`}
                             className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                           >
                             {subItem.title}

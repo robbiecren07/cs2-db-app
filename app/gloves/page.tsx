@@ -36,8 +36,27 @@ export default async function GlovesPage() {
     return notFound()
   }
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'All CS2 Gloves | Browse Counter-Strike 2 Gloves Collection',
+    description:
+      "Explore all CS2 gloves in Counter-Strike 2. Discover detailed information on each glove's unique design, prices, and rarity. Stay updated with the latest and most coveted gloves in the game.",
+    url: 'https://cs2skinsdb.com/gloves',
+    itemListElement: data.map((glove, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: glove.name,
+      description: glove.description || `Detailed information on the ${glove.name} gloves.`,
+      image: glove.image,
+      url: `https://cs2skinsdb.com/gloves/${glove.slug}`,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active="Gloves" />
       <PageTitle title="All CS2 Gloves" />
 

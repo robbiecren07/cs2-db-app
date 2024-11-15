@@ -44,8 +44,28 @@ export default async function WeaponsPage() {
   const special = data.filter((weapon) => weapon.type === 'special')
 
   // TODO: total number of skins
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Browse All CS2 Weapons | Counter-Strike 2 Weapon Types',
+    description:
+      'Explore all weapon types in Counter-Strike 2, including pistols, rifles, SMGs, heavy weapons, and more. Find detailed information and images for each weapon type.',
+    url: 'https://cs2skinsdb.com/weapons',
+    itemListElement: data.map((weapon, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: weapon.name,
+      image: weapon.image,
+      url: `https://cs2skinsdb.com/weapons/${weapon.slug}`,
+      description: `Detailed stats and information about the ${weapon.name}.`,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active="Weapons" />
       <PageTitle title="Browse Weapon Types" />
 

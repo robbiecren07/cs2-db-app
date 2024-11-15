@@ -21,7 +21,10 @@ export default function AvailableInToolTip({ item }: Props) {
       <div className="pb-2">
         <TooltipProvider>
           <Tooltip delayDuration={0}>
-            <TooltipTrigger className="text-sm text-accent-foreground font-light">
+            <TooltipTrigger
+              className="text-sm text-accent-foreground font-light"
+              aria-label={`Available in case: ${casesText}`}
+            >
               Available in {item.in_cases.length} {casesText}
             </TooltipTrigger>
             <TooltipContent>
@@ -32,6 +35,7 @@ export default function AvailableInToolTip({ item }: Props) {
                       key={item.id}
                       href={`/cases/${slugify(item.name, { lower: true, strict: true })}`}
                       className="transition-colors hover:text-purple-500"
+                      aria-label={`View all skins in the ${item.name} case`}
                     >
                       {item.name}
                     </Link>

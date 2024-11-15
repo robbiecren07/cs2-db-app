@@ -68,8 +68,26 @@ export default async function WeaponPage({ params }: Props) {
     return notFound()
   }
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `Browse All ${weaponData.name} Skins | CS2 ${weaponData.name} Stats and Skins`,
+    description: `Discover all ${weaponData.name} skins in Counter-Strike 2. Explore detailed stats, images, and information for each ${weaponData.name} skin.`,
+    url: `https://cs2skinsdb.com/weapons/${weaponData.slug}`,
+    itemListElement: skins.map((skin, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: skin.name,
+      image: skin.image,
+      url: `https://cs2skinsdb.com/skins/${skin.slug}`,
+      description: skin.description || `Detailed stats and information about the ${skin.name}.`,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active={skins[0].weapon_name.replace('★ ', '')} parent="Weapons" parentHref="/weapons" />
       <PageTitle title={`Browse All ${weaponData.name} Skins`} />
 

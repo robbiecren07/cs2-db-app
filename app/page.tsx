@@ -62,8 +62,57 @@ async function getData(): Promise<Data> {
 export default async function Index() {
   const { crate, skins, collection, collectionSkins, popularSkins } = await getData()
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'CS2 Skins DB | Browse All Counter-Strike 2 Skins',
+    description:
+      'Explore CS2 Skins DB, your ultimate resource for all Counter-Strike 2 skins, cases, collections, gloves, and more. Stay updated with the latest in-game items and market prices.',
+    url: 'https://cs2skinsdb.com/',
+    mainEntity: [
+      {
+        '@type': 'ItemList',
+        name: 'Latest CS2 Case',
+        itemListElement: crate
+          ? [
+              {
+                '@type': 'Product',
+                name: crate.name,
+                description: crate.description || 'Discover the latest CS2 case and its contents.',
+                image: crate.image,
+              },
+            ]
+          : [],
+      },
+      {
+        '@type': 'ItemList',
+        name: 'Featured Collections',
+        itemListElement: collectionSkins.map((skin) => ({
+          '@type': 'Product',
+          name: skin.name,
+          description: skin.description || `Part of the ${collection?.name} collection.`,
+          image: skin.image,
+          sku: skin.id,
+        })),
+      },
+      {
+        '@type': 'ItemList',
+        name: 'Popular CS2 Skins',
+        itemListElement: popularSkins.map((skin) => ({
+          '@type': 'Product',
+          name: skin.name,
+          description: `Popular skin for the ${skin.weapon_slug}.`,
+          image: skin.image,
+          sku: skin.id,
+        })),
+      },
+    ],
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <section className="relative w-full min-h-[40dvh] lg:min-h-[50dvh] flex justify-center items-center gap-6 pt-8">
         <div className="flex-1 flex flex-col gap-8">
           <h1 className="text-2xl md:text-4xl font-medium text-accent-foreground max-sm:text-center">

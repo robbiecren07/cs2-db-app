@@ -91,9 +91,37 @@ export default async function CasePage({ params }: Props) {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${caseName} ${slug === 'knives' ? 'Knives' : 'Gloves'}`,
+    description: `Discover the exclusive collection of ${slug} in the ${caseName} for Counter-Strike 2. Browse through the rare and coveted items, including detailed information on prices and rarity.`,
+    url: `https://cs2skinsdb.com/cases/${crate}/${slug}`,
+    itemListElement:
+      slug === 'knives'
+        ? knives.map((skin, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: skin.name,
+            description: `A rare ${skin.weapon_name} knife from the ${caseName} Case.`,
+            image: skin.image,
+            url: `https://cs2skinsdb.com/weapons/${skin.weapon_slug}/${skin.slug}`,
+          }))
+        : gloves.map((glove, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: glove.name,
+            description: `A pair of gloves from the ${caseName} Case.`,
+            image: glove.image,
+            url: `https://cs2skinsdb.com/gloves/${glove.slug}`,
+          })),
+  }
+
   if (slug === 'knives') {
     return (
       <InternalContainer>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
         <BreadCrumbBar
           active="Knives"
           parent={caseName}
@@ -120,6 +148,8 @@ export default async function CasePage({ params }: Props) {
   if (slug === 'gloves') {
     return (
       <InternalContainer>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
         <BreadCrumbBar
           active="Gloves"
           parent={caseName}

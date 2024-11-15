@@ -96,8 +96,40 @@ export default async function CasePage({ params }: Props) {
   const knivesCount = skins.filter((skin) => skin.weapon_type === 'Knives').length
   const knifeImage = skins.find((skin) => skin.weapon_type === 'Knives')?.image
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${data.name} Case`,
+    description: `Explore the ${data.name} Case in Counter-Strike 2. Discover the best weapon skins, knives, and gloves available in this case.`,
+    image: data.image, // Replace with actual case image URL
+    url: `https://cs2skinsdb.com/cases/${data.slug}`,
+    releaseDate: data.first_sale_date,
+    brand: {
+      '@type': 'Thing',
+      name: 'Counter-Strike 2',
+    },
+    contains: [
+      ...skins.map((skin) => ({
+        '@type': 'Product',
+        name: skin.name,
+        description: skin.description || `A ${skin.rarity_name} rarity skin for ${skin.weapon_name}.`,
+        image: skin.image,
+        url: `https://cs2skinsdb.com/skins/${skin.slug}`,
+      })),
+      ...gloves.map((glove) => ({
+        '@type': 'Product',
+        name: glove.name,
+        description: `A pair of gloves available in the ${data.name} Case.`,
+        image: glove.image,
+        url: `https://cs2skinsdb.com/gloves/${glove.slug}`,
+      })),
+    ],
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active={data.name} parent="Cases" parentHref="/cases" />
       <PageTitle title={data.name} />
 

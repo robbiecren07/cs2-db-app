@@ -24,8 +24,28 @@ export default function FloatBar({ minFloat, maxFloat }: Props) {
   const getTooltipContent = (label: string, range: number[]) =>
     `${label}: ${range[0].toFixed(2)} - ${range[1].toFixed(2)}`
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    name: 'Float Range',
+    description: 'Indicates the minimum and maximum float values for this skin, which define its wear level.',
+    floatLimits: {
+      minFloat: minFloat,
+      maxFloat: maxFloat,
+    },
+    wearLevels: Object.entries(WEAR_RANGES).map(([label, range]) => ({
+      wearType: label,
+      floatRange: `${range[0].toFixed(2)} - ${range[1].toFixed(2)}`,
+    })),
+  }
+
   return (
-    <div className="w-full lg:max-w-md mx-auto bg-muted py-4 px-6 rounded-lg space-y-3">
+    <div
+      className="w-full lg:max-w-md mx-auto bg-muted py-4 px-6 rounded-lg space-y-3"
+      aria-label={`Float Bar displaying minimum float ${minFloat.toFixed(2)} and maximum float ${maxFloat.toFixed(2)}`}
+    >
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <h3 className="text-lg text-center">Float Limits</h3>
       <div className="relative pt-6">
         <div className="relative h-2 bg-red-600">
@@ -35,6 +55,7 @@ export default function FloatBar({ minFloat, maxFloat }: Props) {
               left: getPosition(minFloat),
               width: `calc(${getPosition(maxFloat)} - ${getPosition(minFloat)})`,
             }}
+            aria-label={`Usable float range from ${minFloat.toFixed(2)} to ${maxFloat.toFixed(2)}`}
           />
           <div
             className="absolute h-2 bg-red-600"
@@ -42,12 +63,17 @@ export default function FloatBar({ minFloat, maxFloat }: Props) {
               left: getPosition(maxFloat),
               width: `calc(100% - ${getPosition(maxFloat)})`,
             }}
+            aria-label={`Float range exceeding ${maxFloat.toFixed(2)}`}
           />
         </div>
 
         <TooltipProvider>
           <Tooltip delayDuration={0}>
-            <TooltipTrigger className="absolute -top-1 w-8" style={{ left: `calc(${getPosition(minFloat)} - 16px)` }}>
+            <TooltipTrigger
+              className="absolute -top-1 w-8"
+              style={{ left: `calc(${getPosition(minFloat)} - 16px)` }}
+              aria-label={`Minimum float value: ${minFloat.toFixed(2)}`}
+            >
               <div className="flex flex-col items-center">
                 <div className="text-xs mb-1">{minFloat.toFixed(2)}</div>
                 <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-t-secondary-foreground border-l-transparent border-r-transparent"></div>
@@ -61,7 +87,11 @@ export default function FloatBar({ minFloat, maxFloat }: Props) {
 
         <TooltipProvider>
           <Tooltip delayDuration={0}>
-            <TooltipTrigger className="absolute -top-1 w-8" style={{ left: `calc(${getPosition(maxFloat)} - 16px)` }}>
+            <TooltipTrigger
+              className="absolute -top-1 w-8"
+              style={{ left: `calc(${getPosition(maxFloat)} - 16px)` }}
+              aria-label={`Maximum float value: ${maxFloat.toFixed(2)}`}
+            >
               <div className="flex flex-col items-center">
                 <div className="text-xs mb-1">{maxFloat.toFixed(2)}</div>
                 <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-t-secondary-foreground border-l-transparent border-r-transparent"></div>
@@ -77,7 +107,11 @@ export default function FloatBar({ minFloat, maxFloat }: Props) {
             <div key={label} className="relative">
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
-                  <TooltipTrigger>{label}</TooltipTrigger>
+                  <TooltipTrigger
+                    aria-label={`Wear range: ${label}, from ${range[0].toFixed(2)} to ${range[1].toFixed(2)}`}
+                  >
+                    {label}
+                  </TooltipTrigger>
                   <TooltipContent>
                     <p>{getTooltipContent(label, range)}</p>
                   </TooltipContent>

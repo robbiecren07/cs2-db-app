@@ -94,8 +94,51 @@ export default async function GlovePage({ params }: { params: { glove: string } 
 
   const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${data.name} Gloves`,
+    description: data.description
+      ? data.description.split('\\n')[0]
+      : `Explore the ${data.name} gloves in Counter-Strike 2. Discover their unique design, prices, and rarity.`,
+    image: data.image,
+    url: `https://cs2skinsdb.com/gloves/${data.slug}`,
+    brand: {
+      '@type': 'Thing',
+      name: 'Counter-Strike 2',
+    },
+    sku: data.paint_index,
+    offers: {
+      '@type': 'AggregateOffer',
+      lowPrice: 'N/A',
+      highPrice: 'N/A',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: 'Steam Community Market',
+      },
+    },
+    additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Float Value',
+        value: `${data.min_float} - ${data.max_float}`,
+      },
+    ],
+    isRelatedTo: collectionGloves.map((glove) => ({
+      '@type': 'Product',
+      name: glove.name,
+      description: `A related glove from the same collection as ${data.name}.`,
+      image: glove.image,
+      url: `https://cs2skinsdb.com/gloves/${glove.slug}`,
+    })),
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar active={data.name.replace('★ ', '')} parent="Gloves" parentHref="/gloves" />
       <PageTitle title={data.name} />
 
@@ -133,7 +176,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
               rel="nofollow"
             >
               Buy on
-              <img width={27} height={24} src="/dm-ua-logo.png" alt="DMARKET logo" />
+              <Image width={27} height={24} src="/dm-ua-logo.png" alt="DMARKET logo" unoptimized />
               DMARKET
             </a>
           </div>

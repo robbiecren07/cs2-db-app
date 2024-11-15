@@ -12,7 +12,7 @@ import MiniSkinCard from './MiniSkinCard'
 import MainCard from './MainCard'
 import MarketTable from './MarketTable'
 import { rarityOrder } from '@/lib/helpers'
-import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 interface Data {
   skin: Skins | null
@@ -100,8 +100,54 @@ export default async function SkinPage({ params }: Props) {
 
   const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: data.name,
+    description: data.description
+      ? data.description.split('\\n')[0]
+      : `Discover the ${data.name} skin for ${data.weapon_name} in Counter-Strike 2.`,
+    image: data.image, // Replace with the actual skin image URL
+    url: `https://cs2skinsdb.com/weapons/${weapon}/${data.short_slug}`,
+    brand: {
+      '@type': 'Thing',
+      name: 'Counter-Strike 2',
+    },
+    sku: data.paint_index,
+    offers: {
+      '@type': 'AggregateOffer',
+      lowPrice: 'N/A',
+      highPrice: 'N/A',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: 'Steam Community Market',
+      },
+    },
+    additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Rarity',
+        value: data.rarity_name,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Weapon',
+        value: data.weapon_name,
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Float Value',
+        value: `${data.min_float} - ${data.max_float}`,
+      },
+    ],
+  }
+
   return (
     <InternalContainer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+
       <BreadCrumbBar
         active={data.short_name ? data.short_name : data.name}
         parent={data.weapon_name.replace('★ ', '')}
@@ -134,7 +180,7 @@ export default async function SkinPage({ params }: Props) {
               rel="nofollow"
             >
               Buy on
-              <img width={27} height={24} src="/dm-ua-logo.png" alt="DMARKET logo" />
+              <Image width={27} height={24} src="/dm-ua-logo.png" alt="DMARKET logo" unoptimized />
               DMARKET
             </a>
           </div>
