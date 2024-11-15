@@ -23,7 +23,7 @@ export default function GlobalCaseCard({ item }: Props) {
               '@type': 'Product',
               name: caseItem.name,
               url: `https://cs2skinsdb.com/${
-                caseItem.name.includes('Souvenir') ? 'souvenir-packages' : 'case'
+                caseItem.name.includes('Souvenir') ? 'souvenir-packages' : 'cases'
               }/${slugify(caseItem.name, { lower: true, strict: true })}`,
               image: caseItem.image || '',
               description: `Explore the ${caseItem.name}, a Counter-Strike 2 case featuring unique skins.`,
@@ -34,7 +34,7 @@ export default function GlobalCaseCard({ item }: Props) {
       />
 
       {item.in_cases.map((item: Case) => {
-        let caseSlug = 'case'
+        let caseSlug = 'cases'
         if (item.name.includes('Souvenir')) {
           caseSlug = 'souvenir-packages'
         }
