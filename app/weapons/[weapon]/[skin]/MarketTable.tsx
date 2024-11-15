@@ -61,6 +61,7 @@ export default function MarketTable({ skin }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: skin.name,
+    image: skin.image,
     category: skin.stattrak ? 'StatTrak™ Skin' : skin.souvenir ? 'Souvenir Skin' : 'Standard Skin',
     offers: Object.keys(prices)
       .map((key) => {

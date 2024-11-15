@@ -80,6 +80,17 @@ export default async function Index() {
                 name: crate.name,
                 description: crate.description || 'Discover the latest CS2 case and its contents.',
                 image: crate.image,
+                offers: {
+                  '@type': 'AggregateOffer',
+                  lowPrice: 'N/A',
+                  highPrice: 'N/A',
+                  priceCurrency: 'USD',
+                  availability: 'https://schema.org/InStock',
+                  seller: {
+                    '@type': 'Organization',
+                    name: 'Steam Community Market',
+                  },
+                },
               },
             ]
           : [],
@@ -93,6 +104,17 @@ export default async function Index() {
           description: skin.description || `Part of the ${collection?.name} collection.`,
           image: skin.image,
           sku: skin.id,
+          offers: {
+            '@type': 'AggregateOffer',
+            lowPrice: 'N/A',
+            highPrice: 'N/A',
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+            seller: {
+              '@type': 'Organization',
+              name: 'Steam Community Market',
+            },
+          },
         })),
       },
       {
@@ -104,6 +126,17 @@ export default async function Index() {
           description: `Popular skin for the ${skin.weapon_slug}.`,
           image: skin.image,
           sku: skin.id,
+          offers: {
+            '@type': 'AggregateOffer',
+            lowPrice: 'N/A',
+            highPrice: 'N/A',
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+            seller: {
+              '@type': 'Organization',
+              name: 'Steam Community Market',
+            },
+          },
         })),
       },
     ],

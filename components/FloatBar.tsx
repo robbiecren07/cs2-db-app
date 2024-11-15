@@ -26,17 +26,26 @@ export default function FloatBar({ minFloat, maxFloat }: Props) {
 
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'DefinedTerm',
+    '@type': 'Product',
     name: 'Float Range',
-    description: 'Indicates the minimum and maximum float values for this skin, which define its wear level.',
-    floatLimits: {
-      minFloat: minFloat,
-      maxFloat: maxFloat,
-    },
-    wearLevels: Object.entries(WEAR_RANGES).map(([label, range]) => ({
-      wearType: label,
-      floatRange: `${range[0].toFixed(2)} - ${range[1].toFixed(2)}`,
-    })),
+    description: 'The float range of the skin indicates wear level from minimum to maximum values.',
+    additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Minimum Float',
+        value: minFloat.toFixed(2),
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Maximum Float',
+        value: maxFloat.toFixed(2),
+      },
+      ...Object.entries(WEAR_RANGES).map(([label, range]) => ({
+        '@type': 'PropertyValue',
+        name: `${label} Float Range`,
+        value: `${range[0].toFixed(2)} - ${range[1].toFixed(2)}`,
+      })),
+    ],
   }
 
   return (

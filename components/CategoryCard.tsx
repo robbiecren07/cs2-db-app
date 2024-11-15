@@ -20,6 +20,17 @@ export default function CategoryCard({ weaponName, knifeName, subTitle }: Props)
       '@type': 'Thing',
       name: 'Counter-Strike 2',
     },
+    offers: {
+      '@type': 'AggregateOffer',
+      lowPrice: 'N/A',
+      highPrice: 'N/A',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: 'Steam Community Market',
+      },
+    },
   }
 
   return (
