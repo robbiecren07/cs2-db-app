@@ -13,10 +13,18 @@ export function GloveCard({ glove, index }: Props) {
   const in_cases: Case[] = typeof glove.in_cases === 'string' ? JSON.parse(glove.in_cases) : glove.in_cases
 
   return (
-    <Link href={`/gloves/${glove.slug}`} className="card group border-t-[#eb4b4b]" target="_self">
+    <Link
+      href={`/gloves/${glove.slug}`}
+      className="card group border-t-[#eb4b4b]"
+      target="_self"
+      aria-label={`View details for ${glove.name}`}
+    >
       <Card>
         <CardContent className="flex flex-col h-full p-4">
-          <h2 className="text-sm transition-colors group-hover:text-white">
+          <h2
+            className="text-sm transition-colors group-hover:text-white"
+            aria-label={`Glove name: ${glove.short_name}`}
+          >
             {glove.weapon_name}
             <span className="text-base font-medium block">{glove.short_name}</span>
           </h2>

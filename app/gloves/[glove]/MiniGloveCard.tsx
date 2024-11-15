@@ -9,10 +9,20 @@ interface Props {
 
 export default function MiniGloveCard({ item }: Props) {
   return (
-    <Link href={`/gloves/${item.slug}`} className="card group w-full border-t-[#eb4b4b]" target="_self">
+    <Link
+      href={`/gloves/${item.slug}`}
+      className="card group w-full border-t-[#eb4b4b]"
+      target="_self"
+      aria-label={`View details for ${item.name}`}
+    >
       <Card>
         <CardContent className="flex flex-col h-full p-4">
-          <h3 className="font-medium transition-colors group-hover:text-white">{item.short_name}</h3>
+          <h3
+            className="font-medium transition-colors group-hover:text-white"
+            aria-label={`Glove name: ${item.short_name}`}
+          >
+            {item.short_name}
+          </h3>
           <div className="my-4 mx-auto transition-transform group-hover:scale-110">
             {item.image && (
               <Image
