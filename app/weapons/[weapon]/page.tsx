@@ -20,7 +20,17 @@ type Props = {
   params: { weapon: string }
 }
 
-export const revalidate = 3600
+export async function generateStaticParams() {
+  const supabase = createClient()
+  const { data, error } = await supabase.from('weapons').select('slug')
+
+  if (error || !data) return []
+
+  // Return array of { weapon: slug }
+  return data.map(({ slug }) => ({
+    weapon: slug,
+  }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const weapon = params.weapon
