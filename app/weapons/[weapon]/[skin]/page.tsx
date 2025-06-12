@@ -24,7 +24,17 @@ type Props = {
   params: { weapon: string; skin: string }
 }
 
-export const revalidate = 3600
+export async function generateStaticParams() {
+  const supabase = createClient()
+  const { data, error } = await supabase.from('skins').select('weapon_slug, short_slug')
+
+  if (error || !data) return []
+
+  return data.map((item) => ({
+    weapon: item.weapon_slug,
+    skin: item.short_slug,
+  }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const weapon = params.weapon
@@ -211,7 +221,7 @@ export default async function SkinPage({ params }: Props) {
           ) : null}
         </div>
 
-        <div className="shrink basis-full self-stretch lg:basis-1/2 px-3 max-lg:order-2">
+        <div className="shrink basis-full self-start lg:basis-1/2 px-3 max-lg:order-2">
           <div className="w-full h-full p-4 bg-muted space-y-3 rounded-lg text-accent-foreground text-sm">
             {data.description && (
               <p>
