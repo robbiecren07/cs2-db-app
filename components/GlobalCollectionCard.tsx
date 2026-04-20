@@ -30,7 +30,7 @@ export default function GlobalCollectionCard({ collection }: Props) {
               src={collection.image}
               width="120"
               height="100"
-              className="aspect-[4/3] object-contain"
+              className="aspect-4/3 object-contain"
               alt={collection.name ? collection.name : 'Collection Image'}
             />
           )}

@@ -156,7 +156,7 @@ export function Menu() {
               </NavigationMenuTrigger>
               <NavigationMenuContent aria-label={`${component.title} Submenu`}>
                 {component.subItemTitle || component.subItemTitleSecondary ? (
-                  <div className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
+                  <div className="grid md:grid-cols-2 w-75 md:w-100 lg:w-135 gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
                     {component.subItemTitle && (
                       <div>
                         <h3 className="text-sm font-medium mb-2" id={`${component.title}-submenu`}>
@@ -213,7 +213,7 @@ export function Menu() {
                 ) : (
                   <ul
                     aria-label={`${component.title} Options`}
-                    className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5"
+                    className="grid md:grid-cols-2 w-75 md:w-100 lg:w-135 gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5"
                   >
                     {component.subItems.map((subItem) => (
                       <ListItem
@@ -238,11 +238,9 @@ export function Menu() {
             </NavigationMenuItem>
           ))}
           <NavigationMenuItem>
-            <Link href="/gloves" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()} aria-label="Explore Gloves">
-                Gloves
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()} aria-label="Explore Gloves" asChild>
+              <Link href="/gloves">Gloves</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           {otherLinks.map((other) => (
             <NavigationMenuItem key={other.title}>
@@ -250,7 +248,7 @@ export function Menu() {
                 {other.title}
               </NavigationMenuTrigger>
               <NavigationMenuContent aria-label={`${other.title} Submenu`}>
-                <ul className="grid md:grid-cols-2 w-[300px] md:w-[400px] lg:w-[540px] gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
+                <ul className="grid md:grid-cols-2 w-75 md:w-100 lg:w-135 gap-2 lg:gap-3 p-2 lg:p-3 lg:px-5">
                   {other.subItems.map((subItem) => (
                     <ListItem
                       key={subItem.slug}
@@ -293,7 +291,7 @@ export function Menu() {
                   <details>
                     <summary
                       aria-label={`Expand ${component.title} menu`}
-                      className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     >
                       {component.title}
                       <ChevronDown className="w-4 h-4 transition-transform duration-200" />
@@ -304,7 +302,7 @@ export function Menu() {
                           <Link
                             href={`/weapons/${subItem.slug}`}
                             aria-label={`View ${subItem.title}`}
-                            className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            className="block p-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                           >
                             {subItem.title}
                           </Link>
@@ -318,7 +316,7 @@ export function Menu() {
                 <Link
                   href="/gloves"
                   aria-label="View Gloves"
-                  className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="block p-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Gloves
                 </Link>
@@ -328,7 +326,7 @@ export function Menu() {
                   <details>
                     <summary
                       aria-label={`Expand ${other.title} menu`}
-                      className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      className="p-2 flex justify-between items-center cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     >
                       {other.title}
                       <ChevronDown className="w-4 h-4 transition-transform duration-200" />
@@ -339,7 +337,7 @@ export function Menu() {
                           <Link
                             href={`/${subItem.slug}`}
                             aria-label={`View ${subItem.title}`}
-                            className="block p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            className="block p-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                           >
                             {subItem.title}
                           </Link>
@@ -398,7 +396,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
           <a
             ref={ref}
             className={cn(
-              'flex gap-3 items-center select-none space-y-1 rounded-md p-1 lg:p-2 leading-none no-underline outline-none transition-colors hover:bg-primary hover:text-foreground focus:bg-accent focus:text-accent-foreground',
+              'flex gap-3 items-center select-none space-y-1 rounded-md p-1 lg:p-2 leading-none no-underline outline-hidden transition-colors hover:bg-primary hover:text-foreground focus:bg-accent focus:text-accent-foreground',
               className
             )}
             {...props}

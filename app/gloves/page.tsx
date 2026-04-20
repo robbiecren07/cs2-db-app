@@ -1,12 +1,14 @@
-import { Gloves } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
-import type { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import { GloveCard } from './GloveCard'
+import type { Gloves } from '@/types/custom'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'All CS2 Gloves | Browse Counter-Strike 2 Gloves Collection',
@@ -16,17 +18,15 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 3600
-
 async function getData(): Promise<Gloves[] | null> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('gloves').select('*').order('name', { ascending: true })
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM gloves ORDER BY name ASC`
 
-  if (error) {
+  if (!data || data.length === 0) {
     return null
   }
 
-  return data
+  return data as Gloves[]
 }
 
 export default async function GlovesPage() {

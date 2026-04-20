@@ -1,7 +1,7 @@
-import { Skins, Weapons } from '@/types/custom'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
@@ -10,6 +10,8 @@ import StatBoxContainer from '@/components/StatBoxContainer'
 import CategoryCard from '@/components/CategoryCard'
 import SortFilterContainer from '@/components/SortFilterContainer'
 import { rarityOrder } from '@/lib/helpers'
+import type { Skins, Weapons } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   skins: Skins[]
@@ -21,10 +23,10 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('weapons').select('slug')
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT slug FROM weapons`) as Weapons[]
 
-  if (error || !data) return []
+  if (!data) return []
 
   // Return array of { weapon: slug }
   return data.map(({ slug }) => ({
@@ -33,9 +35,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const weapon = params.weapon
-  const supabase = createClient()
-  const { data } = await supabase.from('skins').select('*').eq('weapon_slug', weapon)
+  const { weapon } = await params
+
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM weapons WHERE slug = ${weapon}`) as Skins[]
 
   if (!data) {
     return {}
@@ -51,15 +54,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(weapon: string): Promise<Data> {
-  const supabase = createClient()
+  const sql = neon(process.env.DATABASE_URL!)
   try {
     const [skinResponse, weaponsResponse] = await Promise.all([
-      supabase.from('skins').select('*').eq('weapon_slug', weapon).order('short_name', { ascending: true }),
-      supabase.from('weapons').select('*').eq('slug', weapon).single(),
+      sql`SELECT * FROM skins WHERE weapon_slug = ${weapon} ORDER BY short_name ASC`,
+      sql`SELECT * FROM weapons WHERE slug = ${weapon} LIMIT 1`,
     ])
 
-    const skins = skinResponse.data || []
-    const weaponData = weaponsResponse.data
+    const skins = (skinResponse as Skins[]) || []
+    const weaponData = (weaponsResponse[0] as Weapons) || []
 
     return {
       skins: skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)),
@@ -71,7 +74,7 @@ async function getData(weapon: string): Promise<Data> {
 }
 
 export default async function WeaponPage({ params }: Props) {
-  const { weapon } = params
+  const { weapon } = await params
   const { skins, weaponData } = await getData(weapon)
 
   if (!skins || skins.length === 0 || !weaponData) {
@@ -102,7 +105,7 @@ export default async function WeaponPage({ params }: Props) {
       <PageTitle title={`Browse All ${weaponData.name} Skins`} />
 
       <div className="relative w-full flex max-sm:flex-wrap gap-6 py-8 lg:py-12">
-        <div className="relative flex-1 flex-shrink-0 basis-[290px] flex flex-col gap-6 h-full">
+        <div className="relative flex-1 shrink-0 basis-72.5 flex flex-col gap-6 h-full">
           <CategoryCard
             weaponName={weaponData.name}
             knifeName={weaponData.type === 'knives' ? skins[0].weapon_name : null}

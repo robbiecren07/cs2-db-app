@@ -1,8 +1,11 @@
-import { Montserrat, Big_Shoulders_Display } from 'next/font/google'
+import { Montserrat } from 'next/font/google'
+import localFont from 'next/font/local'
+import Head from 'next/head'
+import { Suspense } from 'react'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Head from 'next/head'
+import { siteData } from '@/lib/json'
 import './globals.css'
 
 const DEFAULT_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -15,9 +18,8 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 })
 
-const bigShouldersDisplay = Big_Shoulders_Display({
-  subsets: ['latin'],
-  display: 'swap',
+const bigShouldersDisplay = localFont({
+  src: '../fonts/BigShoulders.ttf',
   variable: '--font-big-shoulders-display',
 })
 
@@ -33,26 +35,6 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const year = new Date().getFullYear()
-
-  const siteData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'CS2 Skins DB',
-    url: 'https://cs2skinsdb.com',
-    description:
-      'CS2 Skins DB - Explore detailed information on Counter-Strike 2 weapon skins, cases, collections, gloves, and more.',
-    copyrightHolder: 'cs2skinsdb.com',
-    copyrightYear: year,
-    inLanguage: 'en',
-    isFamilyFriendly: true,
-    publisher: {
-      '@type': 'Organization',
-      name: 'CS2 Skins DB',
-      url: 'https://cs2skinsdb.com',
-    },
-  }
-
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -67,13 +49,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteData) }} />
       </Head>
 
-      <body>
-        <main className="min-h-screen flex flex-col items-center">
-          <Header />
-          {children}
-          <Footer />
-        </main>
-      </body>
+      <Suspense fallback={null}>
+        <body>
+          <main className="min-h-screen flex flex-col items-center">
+            <Header />
+            {children}
+            <Footer />
+          </main>
+        </body>
+      </Suspense>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!} />
     </html>
   )

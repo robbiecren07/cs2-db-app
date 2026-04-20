@@ -52,7 +52,7 @@ export default function GlobalCaseCard({ item }: Props) {
                     src={item.image}
                     width="120"
                     height="100"
-                    className="aspect-[4/3] object-contain"
+                    className="aspect-4/3 object-contain"
                     alt={item.name}
                   />
                 )}

@@ -1,5 +1,6 @@
+import { year } from '@/lib/currentYear'
+
 export default function Footer() {
-  const year = new Date().getFullYear()
   return (
     <footer className="w-full bg-primary mt-auto py-8 border-t border-[#3A3A40]" aria-label="Footer">
       <div className="w-full max-w-3xl mx-auto px-4 flex flex-col gap-2 justify-center items-center">

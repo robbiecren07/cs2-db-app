@@ -1,7 +1,7 @@
-import { Crates, Gloves, Skins } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import Link from 'next/link'
-import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
@@ -11,6 +11,8 @@ import { SkinCard } from '@/components/SkinCard'
 import { CardContent, Card } from '@/components/ui/card'
 import IntroParagraph from '@/components/IntroParagraph'
 import { rarityOrder } from '@/lib/helpers'
+import type { Crates, Gloves, Skins } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   data: Crates | null
@@ -19,33 +21,45 @@ interface Data {
 }
 
 type Props = {
-  params: { case: string }
+  params: { crate: string }
 }
 
-export const revalidate = 3600
+export async function generateStaticParams() {
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT slug FROM crates`) as Crates[]
+
+  if (!data || data.length === 0) {
+    return []
+  }
+
+  return data.map((post) => ({
+    case: post.slug,
+  }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const crate = params.case
-  const supabase = createClient()
-  const { data } = await supabase.from('crates').select('*').eq('slug', crate).single()
+  const { crate } = await params
 
-  if (!data) {
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM crates WHERE slug = ${crate} LIMIT 1`) as Crates[]
+
+  if (!data || data.length === 0) {
     return {}
   }
 
   return {
-    title: `${data.name} | CS2 Weapon Skins and Knives`,
-    description: `Explore the ${data.name} in Counter-Strike 2. Discover the best weapon skins and knives available in this case, including their prices and rarity.`,
+    title: `${data[0].name} | CS2 Weapon Skins and Knives`,
+    description: `Explore the ${data[0].name} in Counter-Strike 2. Discover the best weapon skins and knives available in this case, including their prices and rarity.`,
     alternates: {
       canonical: `/cases/${crate}`,
     },
     openGraph: {
       images: [
         {
-          url: data.image,
+          url: data[0].image,
           width: 512,
           height: 384,
-          alt: `${data.name} skin modal`,
+          alt: `${data[0].name} skin modal`,
         },
       ],
     },
@@ -53,39 +67,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(crate: string): Promise<Data> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('crates').select('*').eq('slug', crate).single()
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM crates WHERE slug = ${crate} LIMIT 1`
 
-  if (error) {
+  if (!data || data.length === 0) {
     return { data: null, skins: [], gloves: [] }
   }
 
-  const { data: skinData, error: skinError } = await supabase.from('skins').select('*').contains('case_ids', [data.id])
+  const skinData = await sql`SELECT * FROM skins WHERE case_ids @> ARRAY[${data[0].id}]`
 
-  if (skinError || !skinData) {
-    return { data, skins: [], gloves: [] }
+  if (!skinData) {
+    return { data: data[0] as Crates, skins: [], gloves: [] }
   }
 
-  const { data: gloveData, error: gloveError } = await supabase
-    .from('gloves')
-    .select('*')
-    .contains('case_ids', [data.id])
+  const gloveData = await sql`SELECT * FROM gloves WHERE case_ids @> ARRAY[${data[0].id}]`
 
-  if (gloveError || !gloveData) {
-    return { data, skins: skinData, gloves: [] }
+  if (!gloveData) {
+    return { data: data[0] as Crates, skins: skinData as Skins[], gloves: [] }
   }
 
   return {
-    data,
-    skins: skinError
-      ? []
-      : skinData.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) || [],
-    gloves: gloveError ? [] : gloveData || [],
+    data: data[0] as Crates,
+    skins:
+      (skinData.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Skins[]) || [],
+    gloves: (gloveData as Gloves[]) || [],
   }
 }
 
 export default async function CasePage({ params }: Props) {
-  const { case: crate } = params
+  const { crate } = await params
   const { data, skins, gloves } = await getData(crate)
 
   if (!data) {
@@ -141,10 +151,10 @@ export default async function CasePage({ params }: Props) {
             {data.image && (
               <Image
                 alt={`${data.name} skin modal`}
-                className="h-[198px] w-full max-w-[256px] aspect-video object-contain"
+                className="h-49.5 w-full max-w-[256px] aspect-video object-contain"
                 src={data.image}
-                width="256"
-                height="198"
+                width={512}
+                height={384}
                 priority
               />
             )}

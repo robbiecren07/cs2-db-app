@@ -1,12 +1,14 @@
-import { Collections } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import { CollectionsCard } from './CollectionsCard'
+import type { Collections } from '@/types/custom'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'CS2 Collections | Browse All Counter-Strike 2 Collections',
@@ -16,17 +18,15 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 3600
-
 async function getData(): Promise<Collections[] | null> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('collections').select('*').order('name', { ascending: true })
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM collections ORDER BY name ASC`
 
-  if (error) {
+  if (!data || data.length === 0) {
     return null
   }
 
-  return data
+  return data as Collections[]
 }
 
 export default async function CollectionsPage() {

@@ -1,4 +1,6 @@
-import {
+import { neon } from '@neondatabase/serverless'
+import type { MetadataRoute } from 'next'
+import type {
   Agents,
   Collectables,
   Collections,
@@ -9,8 +11,6 @@ import {
   SouvenirPackages,
   Weapons,
 } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
-import { MetadataRoute } from 'next'
 
 const BASE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -31,7 +31,7 @@ interface Data {
 type ChangeFrequency = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
 
 export async function getData(): Promise<Data> {
-  const supabase = createClient()
+  const sql = neon(process.env.DATABASE_URL!)
   try {
     const [
       agentRes,
@@ -44,41 +44,27 @@ export async function getData(): Promise<Data> {
       weaponsRes,
       skinsRes,
     ] = await Promise.all([
-      supabase.from('agents').select('slug'),
-      supabase.from('crates').select('slug'),
-      supabase.from('collections').select('slug'),
-      supabase.from('gloves').select('slug'),
-      supabase.from('patches').select('slug'),
-      supabase.from('collectables').select('slug').eq('type', 'Pin'),
-      supabase.from('souvenir_packages').select('slug'),
-      supabase.from('weapons').select('slug'),
-      supabase.from('skins').select('short_slug, weapon_slug'),
+      sql`SELECT slug FROM agents`,
+      sql`SELECT slug FROM crates`,
+      sql`SELECT slug FROM collections`,
+      sql`SELECT slug FROM gloves`,
+      sql`SELECT slug FROM patches`,
+      sql`SELECT slug FROM collectables WHERE type = 'Pin'`,
+      sql`SELECT slug FROM souvenir_packages`,
+      sql`SELECT slug FROM weapons`,
+      sql`SELECT short_slug, weapon_slug FROM skins`,
     ])
 
-    if (
-      agentRes.error ||
-      cratesRes.error ||
-      collectionsRes.error ||
-      glovesRes.error ||
-      patchesRes.error ||
-      collectablesRes.error ||
-      packagesRes.error ||
-      weaponsRes.error ||
-      skinsRes.error
-    ) {
-      throw new Error('Error fetching data from Supabase')
-    }
-
     return {
-      agents: agentRes.data as Agents[],
-      crates: cratesRes.data as Crates[],
-      collections: collectionsRes.data as Collections[],
-      gloves: glovesRes.data as Gloves[],
-      patches: patchesRes.data as Patches[],
-      collectables: collectablesRes.data as Collectables[],
-      packages: packagesRes.data as SouvenirPackages[],
-      weapons: weaponsRes.data as Weapons[],
-      skins: skinsRes.data as Skins[],
+      agents: agentRes as Agents[],
+      crates: cratesRes as Crates[],
+      collections: collectionsRes as Collections[],
+      gloves: glovesRes as Gloves[],
+      patches: patchesRes as Patches[],
+      collectables: collectablesRes as Collectables[],
+      packages: packagesRes as SouvenirPackages[],
+      weapons: weaponsRes as Weapons[],
+      skins: skinsRes as Skins[],
     }
   } catch (error) {
     console.error('Error fetching data for sitemap:', error)

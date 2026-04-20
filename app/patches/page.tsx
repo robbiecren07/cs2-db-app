@@ -1,13 +1,15 @@
-import { Patches } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import ItemCard from './ItemCard'
+import type { Patches } from '@/types/custom'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'CS2 Agent Patches | Browse All Counter-Strike 2 Patches',
@@ -17,17 +19,15 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 3600
-
 async function getData(): Promise<Patches[] | null> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('patches').select('*').order('name', { ascending: true })
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM patches ORDER BY name ASC`
 
-  if (error) {
+  if (!data || data.length === 0) {
     return null
   }
 
-  return data.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999))
+  return data.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Patches[]
 }
 
 export default async function PatchesPage() {

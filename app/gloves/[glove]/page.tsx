@@ -1,6 +1,6 @@
-import { Case, Gloves } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
@@ -10,6 +10,8 @@ import FloatBar from '@/components/FloatBar'
 import MarketTable from '@/components/MarketTable'
 import GlobalCaseCard from '@/components/GlobalCaseCard'
 import MiniGloveCard from './MiniGloveCard'
+import type { Case, Gloves } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   glove: Gloves | null
@@ -20,13 +22,11 @@ type Props = {
   params: { glove: string }
 }
 
-export const revalidate = 3600
-
 export async function generateStaticParams() {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('gloves').select('*')
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM gloves ORDER BY name ASC`) as Gloves[]
 
-  if (error) {
+  if (!data || data.length === 0) {
     return []
   }
 
@@ -36,27 +36,28 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = params.glove
-  const supabase = createClient()
-  const { data } = await supabase.from('gloves').select('*').eq('slug', slug).single()
+  const { glove } = await params
+
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM gloves WHERE slug = ${glove} LIMIT 1`) as Gloves[]
 
   if (!data) {
     return {}
   }
 
   return {
-    title: `${data.name} | CS2 Gloves | Counter-Strike 2 Skin`,
-    description: `Discover the ${data.name} in Counter-Strike 2. Explore detailed information about this unique glove, including design, prices, and rarity. Enhance your gameplay with the exclusive ${data.name}`,
+    title: `${data[0].name} | CS2 Gloves | Counter-Strike 2 Skin`,
+    description: `Discover the ${data[0].name} in Counter-Strike 2. Explore detailed information about this unique glove, including design, prices, and rarity. Enhance your gameplay with the exclusive ${data[0].name}`,
     alternates: {
-      canonical: `/gloves/${slug}`,
+      canonical: `/gloves/${glove}`,
     },
     openGraph: {
       images: [
         {
-          url: data.image,
+          url: data[0].image,
           width: 512,
           height: 384,
-          alt: `${data.name} skin modal`,
+          alt: `${data[0].name} skin modal`,
         },
       ],
     },
@@ -64,28 +65,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(glove: string): Promise<Data> {
-  const supabase = createClient()
-  const { data: gloveData, error } = await supabase.from('gloves').select('*').eq('slug', glove).single()
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM gloves WHERE slug = ${glove} LIMIT 1`) as Gloves[]
 
-  if (error) {
+  if (!data || data.length === 0) {
     return { glove: null, collectionGloves: [] }
   }
 
-  const { data: collectionGloves, error: collectionError } = await supabase
-    .from('gloves')
-    .select('*')
-    .eq('weapon_id_ref', gloveData.weapon_id_ref)
-    .order('name', { ascending: true })
+  const collectionGloves =
+    await sql`SELECT * FROM gloves WHERE weapon_id_ref = ${data[0].weapon_id_ref} ORDER BY name ASC`
 
-  if (collectionError) {
-    return { glove: gloveData, collectionGloves: [] }
+  if (!collectionGloves || collectionGloves.length === 0) {
+    return { glove: data[0] as Gloves, collectionGloves: [] }
   }
 
-  return { glove: gloveData, collectionGloves }
+  return { glove: data[0] as Gloves, collectionGloves: collectionGloves as Gloves[] }
 }
 
 export default async function GlovePage({ params }: { params: { glove: string } }) {
-  const { glove } = params
+  const { glove } = await params
   const { glove: data, collectionGloves } = await getData(glove)
 
   if (!data) {
@@ -148,7 +146,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
             {data.image && (
               <Image
                 alt={`${data.name} skin modal`}
-                className="h-[192px] md:h-[384px] w-full mx-auto aspect-video object-contain max-sm:object-right"
+                className="h-48 md:h-96 w-full mx-auto aspect-video object-contain max-sm:object-right"
                 src={data.image}
                 width="512"
                 height="384"
@@ -170,7 +168,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
                 `${data.name} (Minimal Wear)`
               )}`}
               className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-none 
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow noreferrer"
@@ -184,7 +182,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
                 data.name
               )}&ref=YJATPCd833`}
               className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-none 
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow"

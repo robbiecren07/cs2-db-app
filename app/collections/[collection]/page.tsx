@@ -1,14 +1,15 @@
-import { Collections, Skins } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import PageTitle from '@/components/PageTitle'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { SkinCard } from '@/components/SkinCard'
-import IntroParagraph from '@/components/IntroParagraph'
 import { rarityOrder } from '@/lib/helpers'
+import type { Collections, Skins } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   data: Collections | null
@@ -19,13 +20,11 @@ type Props = {
   params: { collection: string }
 }
 
-export const revalidate = 3600
-
 export async function generateStaticParams() {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('collections').select('slug')
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT slug FROM collections`) as Collections[]
 
-  if (error) {
+  if (!data || data.length === 0) {
     return []
   }
 
@@ -35,27 +34,28 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const collection = params.collection
-  const supabase = createClient()
-  const { data } = await supabase.from('collections').select('*').eq('slug', collection).single()
+  const { collection } = await params
+
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM collections WHERE slug = ${collection} LIMIT 1`) as Collections[]
 
   if (!data) {
     return {}
   }
 
   return {
-    title: `${data.name} | CS2 Collection | Counter-Strike 2 Skins`,
-    description: `Discover the ${data.name} in Counter-Strike 2. Browse through the unique weapon skins, find detailed information on prices and rarity, and stay updated with the latest additions to the collection.`,
+    title: `${data[0].name} | CS2 Collection | Counter-Strike 2 Skins`,
+    description: `Discover the ${data[0].name} in Counter-Strike 2. Browse through the unique weapon skins, find detailed information on prices and rarity, and stay updated with the latest additions to the collection.`,
     alternates: {
       canonical: `/collections/${collection}`,
     },
     openGraph: {
       images: [
         {
-          url: data.image,
+          url: data[0].image,
           width: 512,
           height: 384,
-          alt: `${data.name} skin modal`,
+          alt: `${data[0].name} skin modal`,
         },
       ],
     },
@@ -63,15 +63,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(collection: string): Promise<Data> {
-  const supabase = createClient()
+  const sql = neon(process.env.DATABASE_URL!)
   try {
     const [collectionsResponse, skinsResponse] = await Promise.all([
-      supabase.from('collections').select('*').eq('slug', collection).single(),
-      supabase.from('skins').select('*').eq('collections_slug', collection),
+      sql`SELECT * FROM collections WHERE slug = ${collection} LIMIT 1`,
+      sql`SELECT * FROM skins WHERE collections_slug = ${collection}`,
     ])
 
-    const data = collectionsResponse.data
-    const skins = skinsResponse.data || []
+    const data = collectionsResponse[0] as Collections
+    const skins = (skinsResponse as Skins[]) || []
 
     return {
       data,
@@ -83,7 +83,7 @@ async function getData(collection: string): Promise<Data> {
 }
 
 export default async function CollectionPage({ params }: Props) {
-  const { collection } = params
+  const { collection } = await params
   const { data, skins } = await getData(collection)
 
   if (!data || !skins) {
