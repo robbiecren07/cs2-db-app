@@ -1,7 +1,7 @@
-import { Collections, Skins, Case } from '@/types/custom'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
@@ -13,6 +13,8 @@ import MainCard from './MainCard'
 import MarketTable from './MarketTable'
 import { rarityOrder } from '@/lib/helpers'
 import Image from 'next/image'
+import type { Collections, Skins, Case } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   skin: Skins | null
@@ -25,10 +27,10 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('skins').select('weapon_slug, short_slug')
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT weapon_slug, short_slug FROM skins`) as Skins[]
 
-  if (error || !data) return []
+  if (!data) return []
 
   return data.map((item) => ({
     weapon: item.weapon_slug,
@@ -37,28 +39,28 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const weapon = params.weapon
-  const skin = params.skin
-  const supabase = createClient()
-  const { data } = await supabase.from('skins').select('*').eq('weapon_slug', weapon).eq('short_slug', skin).single()
+  const { weapon, skin } = await params
+
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM skins WHERE weapon_slug = ${weapon} AND short_slug = ${skin}`) as Skins[]
 
   if (!data) {
     return {}
   }
 
   return {
-    title: `${data.name} | CS2 Skin Prices, Stats, and Info`,
-    description: `Discover the ${data.name} in Counter-Strike 2. Check current Steam market prices, explore collection and case details, and get in-depth information on pattern index, float values, and more for this skin.`,
+    title: `${data[0].name} | CS2 Skin Prices, Stats, and Info`,
+    description: `Discover the ${data[0].name} in Counter-Strike 2. Check current Steam market prices, explore collection and case details, and get in-depth information on pattern index, float values, and more for this skin.`,
     alternates: {
       canonical: `/weapons/${weapon}/${skin}`,
     },
     openGraph: {
       images: [
         {
-          url: data.image,
+          url: data[0].image,
           width: 512,
           height: 384,
-          alt: `${data.name} skin modal`,
+          alt: `${data[0].name} skin modal`,
         },
       ],
     },
@@ -66,42 +68,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(weapon: string, skin: string): Promise<Data> {
-  const supabase = createClient()
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM skins WHERE weapon_slug = ${weapon} AND short_slug = ${skin} LIMIT 1`
 
-  const { data: skinData, error: skinError } = await supabase
-    .from('skins')
-    .select('*')
-    .eq('weapon_slug', weapon)
-    .eq('short_slug', skin)
-    .single()
-
-  if (skinError || !skinData) {
+  if (!data || data.length === 0) {
     return { skin: null, collection: null, collectionSkins: [] }
   }
 
-  const { data: collectionsData, error: collectionsDataError } = await supabase
-    .from('collections')
-    .select('*')
-    .eq('slug', skinData.collections_slug)
-    .single()
-
-  const { data: collectionSkinsData, error: collectionSkinsError } = await supabase
-    .from('skins')
-    .select('*')
-    .eq('collections_slug', skinData.collections_slug)
-    .order('rarity_id', { ascending: true })
+  const [collectionsData, collectionSkinsData] = await Promise.all([
+    sql`SELECT * FROM collections WHERE slug = ${data[0].collections_slug} LIMIT 1`,
+    sql`SELECT * FROM skins WHERE collections_slug = ${data[0].collections_slug} ORDER BY rarity_id ASC`,
+  ])
 
   return {
-    skin: skinData,
-    collection: collectionsDataError ? null : collectionsData,
-    collectionSkins: collectionSkinsError
-      ? []
-      : collectionSkinsData.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) || [],
+    skin: data[0] as Skins,
+    collection: collectionsData[0] as Collections,
+    collectionSkins:
+      (collectionSkinsData.sort(
+        (a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)
+      ) as Skins[]) || [],
   }
 }
 
 export default async function SkinPage({ params }: Props) {
-  const { weapon, skin } = params
+  const { weapon, skin } = await params
   const { skin: data, collection, collectionSkins } = await getData(weapon, skin)
 
   if (!data) {
@@ -184,7 +174,7 @@ export default async function SkinPage({ params }: Props) {
                 `${data.name} (Minimal Wear)`
               )}`}
               className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-none 
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow noreferrer"
@@ -198,7 +188,7 @@ export default async function SkinPage({ params }: Props) {
                 data.name
               )}&ref=YJATPCd833`}
               className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-none 
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow"

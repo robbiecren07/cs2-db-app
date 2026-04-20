@@ -1,13 +1,15 @@
-import { Crates, Skins } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
+import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
-import type { Metadata } from 'next'
+import { SkinCard } from '@/components/SkinCard'
+import { CaseCard } from '@/components/CaseCard'
 import Image from 'next/image'
 import Link from 'next/link'
 import HeroImage from '@/public/hero_image.png'
-import { rarityOrder } from '@/lib/helpers'
-import { SkinCard } from '@/components/SkinCard'
-import { CaseCard } from '@/components/CaseCard'
+import type { Crates, Skins } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   crate: Crates | null
@@ -25,25 +27,24 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 3600
-
 async function getData(): Promise<Data> {
-  const supabase = createClient()
+  const sql = neon(process.env.DATABASE_URL!)
+
   try {
     const [crateResponse, skinsResponse, collectionResponse, collectionSkinsResponse, popularSkinsResponse] =
       await Promise.all([
-        supabase.from('crates').select('*').eq('id', 'crate-4412').single(),
-        supabase.from('skins').select('*').contains('case_ids', ['crate-4412']).not('weapon_type', 'in', '(Knives)'),
-        supabase.from('crates').select('*').eq('id', 'crate-4001').single(),
-        supabase.from('skins').select('*').contains('case_ids', ['crate-4001']).not('weapon_type', 'in', '(Knives)'),
-        supabase.from('skins').select('*').eq('featured', true),
+        sql`SELECT * FROM crates WHERE id = 'crate-4412' LIMIT 1`,
+        sql`SELECT * FROM skins WHERE case_ids @> ARRAY['crate-4412']::text[] AND weapon_type != 'Knives'`,
+        sql`SELECT * FROM crates WHERE id = 'crate-4412' LIMIT 1`,
+        sql`SELECT * FROM skins WHERE case_ids @> ARRAY['crate-4412']::text[] AND weapon_type != 'Knives'`,
+        sql`SELECT * FROM skins WHERE featured = true`,
       ])
 
-    const crate = crateResponse.data
-    const skins = skinsResponse.data || []
-    const collection = collectionResponse.data
-    const collectionSkins = collectionSkinsResponse.data || []
-    const popularSkins = popularSkinsResponse.data || []
+    const crate = (crateResponse[0] as Crates) ?? null
+    const skins = (skinsResponse as Skins[]) || []
+    const collection = (collectionResponse[0] as Crates) ?? null
+    const collectionSkins = (collectionSkinsResponse as Skins[]) || []
+    const popularSkins = (popularSkinsResponse as Skins[]) || []
 
     return {
       crate,
@@ -166,7 +167,7 @@ export default async function Index() {
           </Link>
         </div>
 
-        <div className="max-lg:hidden w-full max-w-[512px] flex">
+        <div className="max-lg:hidden w-full max-w-lg flex">
           <Image src={HeroImage} alt="Karambit Black Blackpearl skin modal" priority />
         </div>
       </section>

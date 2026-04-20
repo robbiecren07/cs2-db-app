@@ -1,12 +1,14 @@
-import { Gloves, Skins } from '@/types/custom'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import PageTitle from '@/components/PageTitle'
 import { SkinCard } from '@/components/SkinCard'
 import { GloveCard } from '@/app/gloves/GloveCard'
+import type { Gloves, Skins } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   knives: Skins[]
@@ -14,18 +16,15 @@ interface Data {
 }
 
 type Props = {
-  params: { case: string; slug: string }
+  params: { crate: string; slug: string }
 }
-
-export const revalidate = 3600
 
 export async function generateStaticParams() {
   return [{ slug: 'knives' }, { slug: 'gloves' }]
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = params.slug
-  const crate = params.case
+  const { crate, slug } = await params
 
   const caseName = crate
     .split('-')
@@ -42,44 +41,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(crate: string, slug: string): Promise<Data> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('crates').select('*').eq('slug', crate).single()
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM crates WHERE slug = ${crate} LIMIT 1`
 
-  if (error) {
+  if (!data || data.length === 0) {
     return { knives: [], gloves: [] }
   }
 
   if (slug === 'knives') {
-    const { data: knives, error: knivesError } = await supabase
-      .from('skins')
-      .select('*')
-      .contains('case_ids', [data.id])
+    const knives = await sql`SELECT * FROM skins WHERE case_ids @> ARRAY[${data[0].id}]`
 
-    if (knivesError) {
+    if (!knives || knives.length === 0) {
       return { knives: [], gloves: [] }
     }
 
-    return { knives, gloves: [] }
+    return { knives: knives as Skins[], gloves: [] }
   }
 
   if (slug === 'gloves') {
-    const { data: gloves, error: glovesError } = await supabase
-      .from('gloves')
-      .select('*')
-      .contains('case_ids', [data.id])
+    const gloves = await sql`SELECT * FROM gloves WHERE case_ids @> ARRAY[${data[0].id}]`
 
-    if (glovesError) {
+    if (!gloves || gloves.length === 0) {
       return { knives: [], gloves: [] }
     }
 
-    return { knives: [], gloves }
+    return { knives: [], gloves: gloves as Gloves[] }
   }
 
   return { knives: [], gloves: [] }
 }
 
 export default async function CasePage({ params }: Props) {
-  const { case: crate, slug } = params
+  const { crate, slug } = await params
   const { knives, gloves } = await getData(crate, slug)
 
   if (!knives && !gloves) {

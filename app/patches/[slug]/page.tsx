@@ -1,42 +1,43 @@
-import { Patches, RarityId } from '@/types/custom'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import { createClient } from '@/utils/supabase/client'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { Badge } from '@/components/ui/badge'
 import GlobalMarketTable from '@/components/GlobalMarketTable'
+import type { Patches, RarityId } from '@/types/custom'
+import type { Metadata } from 'next'
 
 type Props = {
   params: { slug: string }
 }
 
-export const revalidate = 3600
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = params.slug
-  const supabase = createClient()
-  const { data } = await supabase.from('patches').select('*').eq('slug', slug).single()
+  const { slug } = await params
+
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM patches WHERE slug = ${slug} LIMIT 1`) as Patches[]
 
   if (!data) {
     return {}
   }
 
   return {
-    title: `${data.name} | CS2 Skins DB`,
-    description: `Discover the ${data.name} in Counter-Strike 2. Check current Steam market prices, explore patch details, and more for this patch.`,
+    title: `${data[0].name} | CS2 Skins DB`,
+    description: `Discover the ${data[0].name} in Counter-Strike 2. Check current Steam market prices, explore patch details, and more for this patch.`,
     alternates: {
       canonical: `/patches/${slug}`,
     },
     openGraph: {
       images: [
         {
-          url: data.image,
+          url: data[0].image,
           width: 512,
           height: 384,
-          alt: `${data.name} skin modal`,
+          alt: `${data[0].name} skin modal`,
         },
       ],
     },
@@ -44,19 +45,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(slug: string): Promise<Patches | null> {
-  const supabase = createClient()
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM patches WHERE slug = ${slug} LIMIT 1`) as Patches[]
 
-  const { data, error } = await supabase.from('patches').select('*').eq('slug', slug).single()
-
-  if (error || !data) {
+  if (!data) {
     return null
   }
 
-  return data
+  return data[0] as Patches
 }
 
 export default async function SkinPage({ params }: Props) {
-  const { slug } = params
+  const { slug } = await params
   const data = await getData(slug)
 
   if (!data) {
@@ -77,7 +77,7 @@ export default async function SkinPage({ params }: Props) {
             {data.image && (
               <Image
                 alt={`${data.name} skin modal`}
-                className="h-[192px] md:h-[384px] w-full aspect-video object-contain"
+                className="h-48 md:h-96 w-full aspect-video object-contain"
                 src={data.image}
                 width="512"
                 height="384"

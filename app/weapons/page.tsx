@@ -1,12 +1,14 @@
-import { Weapons } from '@/types/custom'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
-import type { Metadata } from 'next'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import PageTitle from '@/components/PageTitle'
 import { WeaponCard } from './WeaponCard'
 import IntroParagraph from '@/components/IntroParagraph'
+import type { Weapons } from '@/types/custom'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Browse All CS2 Weapons | Counter-Strike 2 Weapon Types',
@@ -16,17 +18,15 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 3600
-
 async function getData(): Promise<Weapons[] | null> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('weapons').select('*').order('name', { ascending: true })
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM weapons ORDER BY name ASC`
 
-  if (error) {
+  if (!data) {
     return null
   }
 
-  return data
+  return data as Weapons[]
 }
 
 export default async function WeaponsPage() {

@@ -1,6 +1,6 @@
-import { Skins, SouvenirPackages } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
-import { Metadata } from 'next'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import { rarityOrder } from '@/lib/helpers'
 import PageTitle from '@/components/PageTitle'
@@ -8,6 +8,8 @@ import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { SkinCard } from '@/components/SkinCard'
 import Image from 'next/image'
+import type { Skins, SouvenirPackages } from '@/types/custom'
+import type { Metadata } from 'next'
 
 interface Data {
   data: SouvenirPackages | null
@@ -18,13 +20,11 @@ type Props = {
   params: { slug: string }
 }
 
-export const revalidate = 3600
-
 export async function generateStaticParams() {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('souvenir_packages').select('slug')
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT slug FROM souvenir_packages`) as SouvenirPackages[]
 
-  if (error) {
+  if (!data) {
     return []
   }
 
@@ -34,27 +34,28 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = params.slug
-  const supabase = createClient()
-  const { data } = await supabase.from('souvenir_packages').select('*').eq('slug', slug).single()
+  const { slug } = await params
+
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = (await sql`SELECT * FROM souvenir_packages WHERE slug = ${slug} LIMIT 1`) as SouvenirPackages[]
 
   if (!data) {
     return {}
   }
 
   return {
-    title: `${data.name} | CS2 Skins DB`,
-    description: `Discover the ${data.name} in Counter-Strike 2. Browse through the unique weapon skins, find detailed information on prices and rarity, and stay updated with the latest additions to the collection.`,
+    title: `${data[0].name} | CS2 Skins DB`,
+    description: `Discover the ${data[0].name} in Counter-Strike 2. Browse through the unique weapon skins, find detailed information on prices and rarity, and stay updated with the latest additions to the collection.`,
     alternates: {
       canonical: `/souvenir-packages/${slug}`,
     },
     openGraph: {
       images: [
         {
-          url: data.image,
+          url: data[0].image,
           width: 512,
           height: 384,
-          alt: `${data.name} skin modal`,
+          alt: `${data[0].name} skin modal`,
         },
       ],
     },
@@ -62,27 +63,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(slug: string): Promise<Data> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('souvenir_packages').select('*').eq('slug', slug).single()
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM souvenir_packages WHERE slug = ${slug} LIMIT 1`
 
-  if (error) {
+  if (!data) {
     return { data: null, skins: [] }
   }
 
-  const { data: skinData, error: skinError } = await supabase.from('skins').select('*').contains('case_ids', [data.id])
+  const skinData = await sql`SELECT * FROM skins WHERE case_ids @> ARRAY[${data[0].id}]`
 
-  if (skinError || !skinData) {
-    return { data, skins: [] }
+  if (!skinData) {
+    return { data: data[0] as SouvenirPackages, skins: [] }
   }
 
   return {
-    data,
-    skins: skinData.sort((a, b) => rarityOrder[a.rarity_id] - rarityOrder[b.rarity_id]),
+    data: data[0] as SouvenirPackages,
+    skins: skinData.sort((a, b) => rarityOrder[a.rarity_id] - rarityOrder[b.rarity_id]) as Skins[],
   }
 }
 
 export default async function SouvenirPage({ params }: Props) {
-  const { slug } = params
+  const { slug } = await params
   const { data, skins } = await getData(slug)
 
   if (!data || !skins) {

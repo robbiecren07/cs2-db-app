@@ -1,12 +1,14 @@
-import { SouvenirPackages } from '@/types/custom'
-import { createClient } from '@/utils/supabase/client'
+'use cache'
+
+import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import { PackagesCard } from './PackagesCard'
+import type { SouvenirPackages } from '@/types/custom'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'CS2 Souvenir Packages | Browse All CS2 Souvenir Packages',
@@ -16,17 +18,15 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 3600
-
 async function getData(): Promise<SouvenirPackages[] | null> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from('souvenir_packages').select('*').order('name', { ascending: true })
+  const sql = neon(process.env.DATABASE_URL!)
+  const data = await sql`SELECT * FROM souvenir_packages ORDER BY name ASC`
 
-  if (error) {
+  if (!data) {
     return null
   }
 
-  return data
+  return data as SouvenirPackages[]
 }
 
 export default async function PackagesPage() {
