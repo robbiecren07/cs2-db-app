@@ -68,8 +68,6 @@ export default async function Index() {
   const results = await getSignaKit('/home/')
   const redesignFlag = results && results.userCtx.decide('homepage_redesign')
 
-  console.log('Redesign flag value:', redesignFlag)
-
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -166,7 +164,16 @@ export default async function Index() {
             you&lsquo;re a seasoned player or new to the world of CS2, our platform provides everything you need to
             enhance your gaming experience.
           </p>
-          <ClientButton href="/weapons" text="Browse Skins" />
+          {redesignFlag ? (
+            <Link
+              href="/weapons"
+              className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            >
+              Browse Skins
+            </Link>
+          ) : (
+            <ClientButton href="/weapons" text="Browse Skins" />
+          )}
         </div>
 
         <div className="max-lg:hidden w-full max-w-lg flex">
@@ -191,7 +198,16 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          <ClientButton href="/cases" text="Browse All Cases" />
+          {redesignFlag ? (
+            <Link
+              href="/cases"
+              className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            >
+              Browse All Cases
+            </Link>
+          ) : (
+            <ClientButton href="/cases" text="Browse All Cases" />
+          )}
         </div>
       </section>
 
@@ -212,13 +228,16 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          <Link
-            href="/collections"
-            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-          >
-            Browse All Collections
-          </Link>
-          <ClientButton href="/collections" text="Browse All Collections" />
+          {redesignFlag ? (
+            <Link
+              href="/collections"
+              className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            >
+              Browse All Collections
+            </Link>
+          ) : (
+            <ClientButton href="/collections" text="Browse All Collections" />
+          )}
         </div>
       </section>
 
