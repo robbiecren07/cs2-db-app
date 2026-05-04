@@ -29,7 +29,6 @@ export const metadata: Metadata = {
 
 async function getData(): Promise<Data> {
   'use cache'
-
   const sql = neon(process.env.DATABASE_URL!)
 
   try {
@@ -165,14 +164,14 @@ export default async function Index() {
             enhance your gaming experience.
           </p>
           {redesignFlag ? (
+            <ClientButton href="/weapons" text="Browse Skins" />
+          ) : (
             <Link
               href="/weapons"
               className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
             >
               Browse Skins
             </Link>
-          ) : (
-            <ClientButton href="/weapons" text="Browse Skins" />
           )}
         </div>
 
@@ -199,14 +198,14 @@ export default async function Index() {
         </div>
         <div className="flex justify-center items-center gap-3">
           {redesignFlag ? (
+            <ClientButton href="/cases" text="Browse All Cases" />
+          ) : (
             <Link
               href="/cases"
               className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
             >
               Browse All Cases
             </Link>
-          ) : (
-            <ClientButton href="/cases" text="Browse All Cases" />
           )}
         </div>
       </section>
@@ -229,14 +228,14 @@ export default async function Index() {
         </div>
         <div className="flex justify-center items-center gap-3">
           {redesignFlag ? (
+            <ClientButton href="/collections" text="Browse All Collections" />
+          ) : (
             <Link
               href="/collections"
               className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
             >
               Browse All Collections
             </Link>
-          ) : (
-            <ClientButton href="/collections" text="Browse All Collections" />
           )}
         </div>
       </section>

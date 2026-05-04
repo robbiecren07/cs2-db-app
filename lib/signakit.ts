@@ -29,7 +29,6 @@ export async function getSignaKit(slug: string): Promise<{
   const cookieStore = await cookies()
   const visitorId = cookieStore.get('visitor_id')?.value
 
-  console.log('Visitor ID from cookie:', visitorId)
   if (!visitorId) {
     console.error('❌ Missing visitor ID')
     return null
@@ -38,6 +37,7 @@ export async function getSignaKit(slug: string): Promise<{
   const attributes = {
     pageSlug: slug,
   }
+
   const userCtx = client.createUserContext(visitorId, attributes)
 
   if (!userCtx) {

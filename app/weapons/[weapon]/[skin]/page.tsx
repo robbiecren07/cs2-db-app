@@ -1,5 +1,3 @@
-'use cache'
-
 import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import InternalContainer from '@/components/InternalContainer'
@@ -15,6 +13,8 @@ import { rarityOrder } from '@/lib/helpers'
 import Image from 'next/image'
 import type { Collections, Skins, Case } from '@/types/custom'
 import type { Metadata } from 'next'
+import { getSignaKit } from '@/lib/signakit'
+import ClientButtonTwo from '@/components/ClientButtonTwo'
 
 interface Data {
   skin: Skins | null
@@ -68,6 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(weapon: string, skin: string): Promise<Data> {
+  'use cache'
   const sql = neon(process.env.DATABASE_URL!)
   const data = await sql`SELECT * FROM skins WHERE weapon_slug = ${weapon} AND short_slug = ${skin} LIMIT 1`
 
@@ -97,6 +98,9 @@ export default async function SkinPage({ params }: Props) {
   if (!data) {
     return notFound()
   }
+
+  const results = await getSignaKit('/home/')
+  const redesignFlag = results && results.userCtx.decide('homepage_redesign')
 
   const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
 
@@ -169,19 +173,23 @@ export default async function SkinPage({ params }: Props) {
           </div>
 
           <div className="w-full flex items-center justify-center gap-3">
-            <a
-              href={`https://steamcommunity.com/market/listings/730/${encodeURIComponent(
-                `${data.name} (Minimal Wear)`
-              )}`}
-              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
+            {redesignFlag ? (
+              <ClientButtonTwo name={data.name} text="View on Steam Market" />
+            ) : (
+              <a
+                href={`https://steamcommunity.com/market/listings/730/${encodeURIComponent(
+                  `${data.name} (Minimal Wear)`
+                )}`}
+                className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
               ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-              target="_blank"
-              rel="nofollow noreferrer"
-              aria-label={`View ${data.name} on Steam Market`}
-            >
-              View on Steam Market
-            </a>
+                target="_blank"
+                rel="nofollow noreferrer"
+                aria-label={`View ${data.name} on Steam Market`}
+              >
+                View on Steam Market
+              </a>
+            )}
 
             <a
               href={`https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodeURIComponent(

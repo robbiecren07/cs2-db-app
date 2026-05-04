@@ -5,7 +5,7 @@ import { DEFAULT_COOKIE_OPTIONS } from './lib/constants'
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next()
   /**
-   * Set Optimizely User ID for FF and web experiments.
+   * Set User ID
    */
   const visitorIdCookie = request.cookies.get('visitor_id')
   if (visitorIdCookie && visitorIdCookie.value) {
