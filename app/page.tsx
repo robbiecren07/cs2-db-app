@@ -1,6 +1,5 @@
-'use cache'
-
 import { neon } from '@neondatabase/serverless'
+import { getSignaKit } from '@/lib/signakit'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import { SkinCard } from '@/components/SkinCard'
@@ -10,6 +9,7 @@ import Link from 'next/link'
 import HeroImage from '@/public/hero_image.png'
 import type { Crates, Skins } from '@/types/custom'
 import type { Metadata } from 'next'
+import ClientButton from '@/components/ClientButton'
 
 interface Data {
   crate: Crates | null
@@ -28,6 +28,8 @@ export const metadata: Metadata = {
 }
 
 async function getData(): Promise<Data> {
+  'use cache'
+
   const sql = neon(process.env.DATABASE_URL!)
 
   try {
@@ -62,6 +64,9 @@ async function getData(): Promise<Data> {
 
 export default async function Index() {
   const { crate, skins, collection, collectionSkins, popularSkins } = await getData()
+
+  const results = await getSignaKit('/home/')
+  const redesignFlag = results && results.userCtx.decide('homepage_redesign')
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -159,12 +164,16 @@ export default async function Index() {
             you&lsquo;re a seasoned player or new to the world of CS2, our platform provides everything you need to
             enhance your gaming experience.
           </p>
-          <Link
-            href="/weapons"
-            className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-          >
-            Browse Skins
-          </Link>
+          {redesignFlag ? (
+            <Link
+              href="/weapons"
+              className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            >
+              Browse Skins
+            </Link>
+          ) : (
+            <ClientButton href="/weapons" text="Browse Skins" />
+          )}
         </div>
 
         <div className="max-lg:hidden w-full max-w-lg flex">
@@ -189,12 +198,16 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          <Link
-            href="/cases"
-            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-          >
-            Browse All Cases
-          </Link>
+          {redesignFlag ? (
+            <Link
+              href="/cases"
+              className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            >
+              Browse All Cases
+            </Link>
+          ) : (
+            <ClientButton href="/cases" text="Browse All Cases" />
+          )}
         </div>
       </section>
 
@@ -215,12 +228,16 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          <Link
-            href="/collections"
-            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-          >
-            Browse All Collections
-          </Link>
+          {redesignFlag ? (
+            <Link
+              href="/collections"
+              className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            >
+              Browse All Collections
+            </Link>
+          ) : (
+            <ClientButton href="/collections" text="Browse All Collections" />
+          )}
         </div>
       </section>
 
