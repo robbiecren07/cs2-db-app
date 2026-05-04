@@ -66,6 +66,7 @@ export default async function Index() {
 
   const results = await getSignaKit('/home/')
   const redesignFlag = results && results.userCtx.decide('homepage_redesign')
+  const flagEnabled = redesignFlag?.enabled
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -163,7 +164,7 @@ export default async function Index() {
             you&lsquo;re a seasoned player or new to the world of CS2, our platform provides everything you need to
             enhance your gaming experience.
           </p>
-          {redesignFlag ? (
+          {flagEnabled ? (
             <ClientButton href="/weapons" text="Browse Skins" />
           ) : (
             <Link
@@ -197,7 +198,7 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          {redesignFlag ? (
+          {flagEnabled ? (
             <ClientButton href="/cases" text="Browse All Cases" />
           ) : (
             <Link
@@ -227,7 +228,7 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          {redesignFlag ? (
+          {flagEnabled ? (
             <ClientButton href="/collections" text="Browse All Collections" />
           ) : (
             <Link

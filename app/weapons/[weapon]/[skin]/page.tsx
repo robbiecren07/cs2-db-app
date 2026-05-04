@@ -101,6 +101,7 @@ export default async function SkinPage({ params }: Props) {
 
   const results = await getSignaKit('/home/')
   const redesignFlag = results && results.userCtx.decide('homepage_redesign')
+  const flagEnabled = redesignFlag?.enabled
 
   const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
 
@@ -173,7 +174,7 @@ export default async function SkinPage({ params }: Props) {
           </div>
 
           <div className="w-full flex items-center justify-center gap-3">
-            {redesignFlag ? (
+            {flagEnabled ? (
               <ClientButtonTwo name={data.name} text="View on Steam Market" />
             ) : (
               <a
