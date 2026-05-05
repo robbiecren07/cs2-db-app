@@ -14,6 +14,7 @@ export function PackagesCard({ item, index }: Props) {
       href={`/souvenir-packages/${item.slug}`}
       className="card group w-full border-accent-foreground"
       target="_self"
+      prefetch={false}
     >
       <Card>
         <CardContent className="flex flex-col w-full h-full justify-between p-4">

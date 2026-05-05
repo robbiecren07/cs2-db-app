@@ -22,6 +22,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
       style={{ borderTopColor: skin.rarity_color ? skin.rarity_color : '' }}
       className="card group w-full"
       target="_self"
+      prefetch={false}
       aria-label={`View details for ${skin.name}`}
     >
       <Card>
@@ -41,6 +42,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
                 href={`/collections/${skin.collections_slug}`}
                 className="text-xs text-accent-foreground font-light transition-colors hover:text-purple-500"
                 target="_self"
+                prefetch={false}
                 aria-label={`View all skins in the ${skin.collections_name} collection`}
               >
                 {skin.collections_name}

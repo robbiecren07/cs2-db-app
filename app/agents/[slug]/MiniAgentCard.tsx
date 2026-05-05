@@ -15,6 +15,7 @@ export default function MiniAgentCard({ agent }: Props) {
       style={{ borderTopColor: agent.rarity_color ? agent.rarity_color : '' }}
       className="card group w-full"
       target="_self"
+      prefetch={false}
     >
       <Card>
         <CardContent className="flex flex-col h-full p-4">

@@ -22,6 +22,7 @@ export default function GlobalCollectionCard({ collection }: Props) {
         href={`/collections/${collection.slug}`}
         className="block w-full"
         target="_self"
+        prefetch={false}
         aria-label={`View details for the ${collection.name} collection`}
       >
         <div className="w-full mx-auto flex flex-col items-center gap-2">

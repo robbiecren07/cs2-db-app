@@ -23,6 +23,7 @@ export function CollectionsCard({ collection, index }: Props) {
       href={`/collections/${collection.slug}`}
       className="card group w-full border-accent-foreground"
       target="_self"
+      prefetch={false}
       aria-label={`View details for the ${collection.name} collection`}
     >
       <Card>

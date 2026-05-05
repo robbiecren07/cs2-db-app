@@ -13,6 +13,7 @@ export function WeaponCard({ weapon }: Props) {
       href={`/weapons/${weapon.slug}`}
       className="card group w-[194px] border-accent-foreground"
       target="_self"
+      prefetch={false}
       aria-label={`View details about weapon: ${weapon.name}`}
     >
       <Card>

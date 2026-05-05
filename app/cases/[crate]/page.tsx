@@ -168,7 +168,7 @@ export default async function CasePage({ params }: Props) {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <h2 className="sr-only">{data.name} Case Skins</h2>
           {containsKnives && (
-            <Link href={`/cases/${crate}/knives`} style={{ borderTopColor: '#e4ae39' }} className="card group w-full">
+            <Link href={`/cases/${crate}/knives`} style={{ borderTopColor: '#e4ae39' }} className="card group w-full" prefetch={false}>
               <Card>
                 <CardContent className="flex flex-col h-full p-4">
                   <h3 className="text-lg font-medium transition-colors group-hover:text-white">Knives</h3>
@@ -193,7 +193,7 @@ export default async function CasePage({ params }: Props) {
           )}
 
           {gloves && gloves.length > 0 && (
-            <Link href={`/cases/${crate}/gloves`} style={{ borderTopColor: '#e4ae39' }} className="card group w-full">
+            <Link href={`/cases/${crate}/gloves`} style={{ borderTopColor: '#e4ae39' }} className="card group w-full" prefetch={false}>
               <Card>
                 <CardContent className="flex flex-col h-full p-4">
                   <h3 className="text-lg font-medium transition-colors group-hover:text-white">Gloves</h3>

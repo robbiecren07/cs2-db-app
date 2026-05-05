@@ -172,6 +172,7 @@ export default async function Index() {
             <Link
               href="/weapons"
               className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+              prefetch={false}
             >
               Browse Skins
             </Link>
@@ -206,6 +207,7 @@ export default async function Index() {
             <Link
               href="/cases"
               className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+              prefetch={false}
             >
               Browse All Cases
             </Link>
@@ -236,6 +238,7 @@ export default async function Index() {
             <Link
               href="/collections"
               className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+              prefetch={false}
             >
               Browse All Collections
             </Link>

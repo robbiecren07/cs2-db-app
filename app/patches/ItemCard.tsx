@@ -20,6 +20,7 @@ export default function ItemCard({ item, index }: Props) {
       style={{ borderColor: item.rarity_color ? item.rarity_color : '' }}
       className="card group w-full"
       target="_self"
+      prefetch={false}
     >
       <Card>
         <CardContent className="flex flex-col w-full h-full justify-between p-4">

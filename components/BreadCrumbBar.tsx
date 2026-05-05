@@ -59,7 +59,7 @@ export function BreadCrumbBar({
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/" target="_self">
+              <Link href="/" target="_self" prefetch={false}>
                 Home
               </Link>
             </BreadcrumbLink>
@@ -69,7 +69,7 @@ export function BreadCrumbBar({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={greatGrandparentHref} target="_self">
+                  <Link href={greatGrandparentHref} target="_self" prefetch={false}>
                     {greatGrandparent}
                   </Link>
                 </BreadcrumbLink>
@@ -81,7 +81,7 @@ export function BreadCrumbBar({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={grandparentHref} target="_self">
+                  <Link href={grandparentHref} target="_self" prefetch={false}>
                     {grandparent}
                   </Link>
                 </BreadcrumbLink>
@@ -93,7 +93,7 @@ export function BreadCrumbBar({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={parentHref} target="_self">
+                  <Link href={parentHref} target="_self" prefetch={false}>
                     {parent}
                   </Link>
                 </BreadcrumbLink>

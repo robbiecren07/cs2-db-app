@@ -15,6 +15,7 @@ export default function ClientButton({ href, text }: Props) {
       href={href}
       className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
       onClick={() => trackEvent()}
+      prefetch={false}
     >
       {text}
     </Link>

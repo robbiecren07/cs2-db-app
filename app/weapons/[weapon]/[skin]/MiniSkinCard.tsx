@@ -16,6 +16,7 @@ export default function MiniSkinCard({ weapon, skin }: Props) {
       style={{ borderTopColor: skin.rarity_color ? skin.rarity_color : '' }}
       className="card group w-full"
       target="_self"
+      prefetch={false}
       aria-label={`View details for ${skin.name}`}
     >
       <Card>

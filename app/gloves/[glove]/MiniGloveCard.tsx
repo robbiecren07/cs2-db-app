@@ -13,6 +13,7 @@ export default function MiniGloveCard({ item }: Props) {
       href={`/gloves/${item.slug}`}
       className="card group w-full border-t-[#eb4b4b]"
       target="_self"
+      prefetch={false}
       aria-label={`View details for ${item.name}`}
     >
       <Card>

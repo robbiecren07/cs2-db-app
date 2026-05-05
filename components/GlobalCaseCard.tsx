@@ -44,6 +44,7 @@ export default function GlobalCaseCard({ item }: Props) {
               href={`/${caseSlug}/${slugify(item.name, { lower: true, strict: true })}`}
               className="block w-full"
               target="_self"
+              prefetch={false}
               aria-label={`View details for ${item.name}`}
             >
               <div className="w-full flex flex-col items-center gap-2">

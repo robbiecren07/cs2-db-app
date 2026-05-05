@@ -17,6 +17,7 @@ export function GloveCard({ glove, index }: Props) {
       href={`/gloves/${glove.slug}`}
       className="card group border-t-[#eb4b4b]"
       target="_self"
+      prefetch={false}
       aria-label={`View details for ${glove.name}`}
     >
       <Card>

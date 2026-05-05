@@ -42,6 +42,7 @@ export function CaseCard({ crate, index }: Props) {
         href={`/cases/${crate.slug}`}
         className="card group w-full border-accent-foreground"
         target="_self"
+        prefetch={false}
         aria-label={`View details for the ${crate.name} case`}
       >
         <Card>
