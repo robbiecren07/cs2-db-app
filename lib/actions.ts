@@ -1,12 +1,10 @@
 'use server'
 
-import { getSignaKit } from '@/lib/signakit'
+import { signakit } from '@/lib/signakit'
+import { getVisitorId } from '@/lib/visitor'
 
 export async function trackEvent() {
-  const results = await getSignaKit('/home/')
-  if (!results) {
-    console.error('Failed to get SignaKit context for tracking event')
-    return
-  }
-  await results.userCtx.trackEvent('form_submit')
+  const visitorId = await getVisitorId()
+  const userCtx = signakit.createUserContext(visitorId)
+  await userCtx?.trackEvent('form_submit')
 }

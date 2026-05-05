@@ -11,10 +11,11 @@ import MainCard from './MainCard'
 import MarketTable from './MarketTable'
 import { rarityOrder } from '@/lib/helpers'
 import Image from 'next/image'
+import { signakit, signakitReady } from '@/lib/signakit'
+import ClientButtonTwo from '@/components/ClientButtonTwo'
+import { getVisitorId } from '@/lib/visitor'
 import type { Collections, Skins, Case } from '@/types/custom'
 import type { Metadata } from 'next'
-import { getSignaKit } from '@/lib/signakit'
-import ClientButtonTwo from '@/components/ClientButtonTwo'
 
 interface Data {
   skin: Skins | null
@@ -27,6 +28,7 @@ type Props = {
 }
 
 export async function generateStaticParams() {
+  'use cache'
   const sql = neon(process.env.DATABASE_URL!)
   const data = (await sql`SELECT weapon_slug, short_slug FROM skins`) as Skins[]
 
@@ -39,6 +41,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  'use cache'
   const { weapon, skin } = await params
 
   const sql = neon(process.env.DATABASE_URL!)
@@ -99,9 +102,10 @@ export default async function SkinPage({ params }: Props) {
     return notFound()
   }
 
-  const results = await getSignaKit('/home/')
-  const redesignFlag = results && results.userCtx.decide('homepage_redesign')
-  const flagEnabled = redesignFlag?.enabled
+  await signakitReady
+  const visitorId = await getVisitorId()
+  const userCtx = signakit.createUserContext(visitorId, { pageSlug: '/home/' })
+  const flagEnabled = !!userCtx?.decide('homepage_redesign')?.enabled
 
   const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
 

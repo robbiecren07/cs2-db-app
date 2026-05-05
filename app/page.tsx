@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless'
-import { getSignaKit } from '@/lib/signakit'
+import { signakit, signakitReady } from '@/lib/signakit'
+import { getVisitorId } from '@/lib/visitor'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import { SkinCard } from '@/components/SkinCard'
@@ -64,9 +65,10 @@ async function getData(): Promise<Data> {
 export default async function Index() {
   const { crate, skins, collection, collectionSkins, popularSkins } = await getData()
 
-  const results = await getSignaKit('/home/')
-  const redesignFlag = results && results.userCtx.decide('homepage_redesign')
-  const flagEnabled = redesignFlag?.enabled
+  await signakitReady
+  const visitorId = await getVisitorId()
+  const userCtx = signakit.createUserContext(visitorId, { pageSlug: '/home/' })
+  const flagEnabled = !!userCtx?.decide('homepage_redesign')?.enabled
 
   const structuredData = {
     '@context': 'https://schema.org',
