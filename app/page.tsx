@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless'
-import { signakit, signakitReady } from '@/lib/signakit'
-import { getVisitorId } from '@/lib/visitor'
+//import { signakit, signakitReady } from '@/lib/signakit'
+//import { getVisitorId } from '@/lib/visitor'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import { SkinCard } from '@/components/SkinCard'
@@ -10,7 +10,7 @@ import Link from 'next/link'
 import HeroImage from '@/public/hero_image.png'
 import type { Crates, Skins } from '@/types/custom'
 import type { Metadata } from 'next'
-import ClientButton from '@/components/ClientButton'
+//import ClientButton from '@/components/ClientButton'
 
 interface Data {
   crate: Crates | null
@@ -65,10 +65,10 @@ async function getData(): Promise<Data> {
 export default async function Index() {
   const { crate, skins, collection, collectionSkins, popularSkins } = await getData()
 
-  await signakitReady
-  const visitorId = await getVisitorId()
-  const userCtx = signakit.createUserContext(visitorId, { pageSlug: '/home/' })
-  const flagEnabled = !!userCtx?.decide('homepage_redesign')?.enabled
+  // await signakitReady
+  // const visitorId = await getVisitorId()
+  // const userCtx = signakit.createUserContext(visitorId, { pageSlug: '/home/' })
+  // const flagEnabled = !!userCtx?.decide('homepage_redesign')?.enabled
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -166,7 +166,7 @@ export default async function Index() {
             you&lsquo;re a seasoned player or new to the world of CS2, our platform provides everything you need to
             enhance your gaming experience.
           </p>
-          {flagEnabled ? (
+          {/*{flagEnabled ? (
             <ClientButton href="/weapons" text="Browse Skins" />
           ) : (
             <Link
@@ -176,7 +176,14 @@ export default async function Index() {
             >
               Browse Skins
             </Link>
-          )}
+          )}*/}
+          <Link
+            href="/weapons"
+            className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            prefetch={false}
+          >
+            Browse Skins
+          </Link>
         </div>
 
         <div className="max-lg:hidden w-full max-w-lg flex">
@@ -201,17 +208,13 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          {flagEnabled ? (
-            <ClientButton href="/cases" text="Browse All Cases" />
-          ) : (
-            <Link
-              href="/cases"
-              className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-              prefetch={false}
-            >
-              Browse All Cases
-            </Link>
-          )}
+          <Link
+            href="/cases"
+            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            prefetch={false}
+          >
+            Browse All Cases
+          </Link>
         </div>
       </section>
 
@@ -232,17 +235,13 @@ export default async function Index() {
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
-          {flagEnabled ? (
-            <ClientButton href="/collections" text="Browse All Collections" />
-          ) : (
-            <Link
-              href="/collections"
-              className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-              prefetch={false}
-            >
-              Browse All Collections
-            </Link>
-          )}
+          <Link
+            href="/collections"
+            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
+            prefetch={false}
+          >
+            Browse All Collections
+          </Link>
         </div>
       </section>
 
