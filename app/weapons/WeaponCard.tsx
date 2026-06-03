@@ -1,10 +1,10 @@
-import { Weapons } from '@/types/custom'
+import { Weapon } from '@/types/custom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CardContent, Card } from '@/components/ui/card'
 
 interface Props {
-  weapon: Weapons
+  weapon: Weapon
 }
 
 export function WeaponCard({ weapon }: Props) {

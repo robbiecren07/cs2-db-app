@@ -1,0 +1,50 @@
+import { MusicKitWithRarity, RarityId } from '@/types/custom'
+import Image from 'next/image'
+import { CardContent, Card } from '@/components/ui/card'
+import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+
+interface Props {
+  item: MusicKitWithRarity
+  index: number
+}
+
+export default function ItemCard({ item, index }: Props) {
+  if (!item) return null
+
+  return (
+    <Link
+      href={`/music-kits/${item.slug}`}
+      style={{ borderColor: item.rarityColor ? item.rarityColor : '' }}
+      className="card group w-full"
+      prefetch={false}
+    >
+      <Card>
+        <CardContent className="flex flex-col w-full h-full justify-between p-4">
+          <h2 className="sr-only">{item.name}</h2>
+          <h3 className="font-medium transition-colors group-hover:text-white">{item.name}</h3>
+          <div className="py-4 mt-auto mx-auto transition-transform group-hover:scale-110">
+            {item.image && (
+              <Image
+                src={item.image}
+                width="290"
+                height="150"
+                className="aspect-video object-contain"
+                alt={`${item.name} - visual modal`}
+                priority={index < 15}
+              />
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2 pt-2">
+            {item.rarityId && <Badge variant={item.rarityId as RarityId}>{item.rarityName}</Badge>}
+            {item.exclusive && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-[#e4ae39] text-black">
+                Exclusive
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  )
+}

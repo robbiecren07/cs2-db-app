@@ -1,5 +1,8 @@
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, asc, and } from 'drizzle-orm'
+import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
@@ -9,85 +12,124 @@ import GlobalCaseCard from '@/components/GlobalCaseCard'
 import MiniSkinCard from './MiniSkinCard'
 import MainCard from './MainCard'
 import MarketTable from './MarketTable'
-import { rarityOrder } from '@/lib/helpers'
 import Image from 'next/image'
-import type { Collections, Skins, Case } from '@/types/custom'
+import type { Collection, SkinWithDetails } from '@/types/custom'
 import type { Metadata } from 'next'
 
 interface Data {
-  skin: Skins | null
-  collection: Collections | null
-  collectionSkins: Skins[]
+  skin: SkinWithDetails | null
+  collection: Collection | null
+  collectionSkins: SkinWithDetails[]
 }
 
 type Props = {
   params: { weapon: string; skin: string }
 }
 
+
 export async function generateStaticParams() {
   'use cache'
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT weapon_slug, short_slug FROM skins`) as Skins[]
-
-  if (!data) return []
-
+  const data = await db
+    .select({ weaponSlug: schema.skins.weaponSlug, shortSlug: schema.skins.shortSlug })
+    .from(schema.skins)
   return data.map((item) => ({
-    weapon: item.weapon_slug,
-    skin: item.short_slug,
+    weapon: item.weaponSlug ?? '',
+    skin: item.shortSlug,
   }))
+}
+
+const skinSelect = {
+  id: schema.skins.id,
+  name: schema.skins.name,
+  slug: schema.skins.slug,
+  shortSlug: schema.skins.shortSlug,
+  shortName: schema.skins.shortName,
+  weaponId: schema.skins.weaponId,
+  weaponName: schema.skins.weaponName,
+  weaponSlug: schema.skins.weaponSlug,
+  categoryId: schema.skins.categoryId,
+  categoryName: schema.skins.categoryName,
+  rarityId: schema.skins.rarityId,
+  patternId: schema.skins.patternId,
+  patternName: schema.skins.patternName,
+  paintIndex: schema.skins.paintIndex,
+  minFloat: schema.skins.minFloat,
+  maxFloat: schema.skins.maxFloat,
+  stattrak: schema.skins.stattrak,
+  souvenir: schema.skins.souvenir,
+  featured: schema.skins.featured,
+  teamId: schema.skins.teamId,
+  description: schema.skins.description,
+  marketHashName: schema.skins.marketHashName,
+  legacyModel: schema.skins.legacyModel,
+  image: schema.skins.image,
+  rarityName: schema.rarities.name,
+  rarityColor: schema.rarities.color,
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   'use cache'
   const { weapon, skin } = await params
-
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM skins WHERE weapon_slug = ${weapon} AND short_slug = ${skin}`) as Skins[]
-
-  if (!data) {
-    return {}
-  }
-
+  const data = await db
+    .select({ name: schema.skins.name, image: schema.skins.image })
+    .from(schema.skins)
+    .where(and(eq(schema.skins.weaponSlug, weapon), eq(schema.skins.shortSlug, skin)))
+    .limit(1)
+  if (!data.length) return {}
   return {
     title: `${data[0].name} | CS2 Skin Prices, Stats, and Info`,
     description: `Discover the ${data[0].name} in Counter-Strike 2. Check current Steam market prices, explore collection and case details, and get in-depth information on pattern index, float values, and more for this skin.`,
-    alternates: {
-      canonical: `/weapons/${weapon}/${skin}`,
-    },
+    alternates: { canonical: `/weapons/${weapon}/${skin}` },
     openGraph: {
-      images: [
-        {
-          url: data[0].image,
-          width: 512,
-          height: 384,
-          alt: `${data[0].name} skin modal`,
-        },
-      ],
+      images: [{ url: data[0].image ?? '', width: 512, height: 384, alt: `${data[0].name} skin modal` }],
     },
   }
 }
 
 async function getData(weapon: string, skin: string): Promise<Data> {
   'use cache'
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM skins WHERE weapon_slug = ${weapon} AND short_slug = ${skin} LIMIT 1`
+  const skinData = await db
+    .select(skinSelect)
+    .from(schema.skins)
+    .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+    .where(and(eq(schema.skins.weaponSlug, weapon), eq(schema.skins.shortSlug, skin)))
+    .limit(1)
 
-  if (!data || data.length === 0) {
-    return { skin: null, collection: null, collectionSkins: [] }
-  }
+  if (!skinData.length) return { skin: null, collection: null, collectionSkins: [] }
 
-  const [collectionsData, collectionSkinsData] = await Promise.all([
-    sql`SELECT * FROM collections WHERE slug = ${data[0].collections_slug} LIMIT 1`,
-    sql`SELECT * FROM skins WHERE collections_slug = ${data[0].collections_slug} ORDER BY rarity_id ASC`,
+  const { getCollectionsForSkins, getCasesForSkin } = await import('@/db/queries')
+  const [collectionRows, inCases] = await Promise.all([
+    getCollectionsForSkins([skinData[0].id]),
+    getCasesForSkin(skinData[0].id),
   ])
 
+  const collectionSlug = collectionRows.get(skinData[0].id)?.collectionSlug ?? null
+  const collectionName = collectionRows.get(skinData[0].id)?.collectionName ?? null
+
+  const enrichedSkin: SkinWithDetails = { ...skinData[0], collectionName, collectionSlug, inCases }
+
+  if (!collectionSlug) return { skin: enrichedSkin, collection: null, collectionSkins: [] }
+
+  const [collectionData, collectionSkinsData] = await Promise.all([
+    db.select().from(schema.collections).where(eq(schema.collections.slug, collectionSlug)).limit(1),
+    db
+      .select(skinSelect)
+      .from(schema.skins)
+      .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+      .innerJoin(schema.skinCollections, eq(schema.skinCollections.skinId, schema.skins.id))
+      .innerJoin(schema.collections, eq(schema.skinCollections.collectionId, schema.collections.id))
+      .where(eq(schema.collections.slug, collectionSlug))
+      .orderBy(asc(schema.skins.rarityId)),
+  ])
+
+  const collectionSkins: SkinWithDetails[] = collectionSkinsData
+    .map((s) => ({ ...s, collectionName, collectionSlug }))
+    .sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
+
   return {
-    skin: data[0] as Skins,
-    collection: collectionsData[0] as Collections,
-    collectionSkins:
-      (collectionSkinsData.sort(
-        (a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)
-      ) as Skins[]) || [],
+    skin: enrichedSkin,
+    collection: collectionData[0] ?? null,
+    collectionSkins,
   }
 }
 
@@ -99,7 +141,7 @@ export default async function SkinPage({ params }: Props) {
     return notFound()
   }
 
-  const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
+  const inCases = data.inCases ?? []
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -107,41 +149,23 @@ export default async function SkinPage({ params }: Props) {
     name: data.name,
     description: data.description
       ? data.description.split('\\n')[0]
-      : `Discover the ${data.name} skin for ${data.weapon_name} in Counter-Strike 2.`,
-    image: data.image, // Replace with the actual skin image URL
-    url: `https://cs2skinsdb.com/weapons/${weapon}/${data.short_slug}`,
-    brand: {
-      '@type': 'Thing',
-      name: 'Counter-Strike 2',
-    },
-    sku: data.paint_index,
+      : `Discover the ${data.name} skin for ${data.weaponName} in Counter-Strike 2.`,
+    image: data.image,
+    url: `https://cs2skinsdb.com/weapons/${weapon}/${data.shortSlug}`,
+    brand: { '@type': 'Thing', name: 'Counter-Strike 2' },
+    sku: data.paintIndex,
     offers: {
       '@type': 'AggregateOffer',
       lowPrice: 'N/A',
       highPrice: 'N/A',
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
-      seller: {
-        '@type': 'Organization',
-        name: 'Steam Community Market',
-      },
+      seller: { '@type': 'Organization', name: 'Steam Community Market' },
     },
     additionalProperty: [
-      {
-        '@type': 'PropertyValue',
-        name: 'Rarity',
-        value: data.rarity_name,
-      },
-      {
-        '@type': 'PropertyValue',
-        name: 'Weapon',
-        value: data.weapon_name,
-      },
-      {
-        '@type': 'PropertyValue',
-        name: 'Float Value',
-        value: `${data.min_float} - ${data.max_float}`,
-      },
+      { '@type': 'PropertyValue', name: 'Rarity', value: data.rarityName },
+      { '@type': 'PropertyValue', name: 'Weapon', value: data.weaponName },
+      { '@type': 'PropertyValue', name: 'Float Value', value: `${data.minFloat} - ${data.maxFloat}` },
     ],
   }
 
@@ -150,8 +174,8 @@ export default async function SkinPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
       <BreadCrumbBar
-        active={data.short_name ? data.short_name : data.name}
-        parent={data.weapon_name.replace('★ ', '')}
+        active={data.shortName ? data.shortName : data.name}
+        parent={(data.weaponName ?? '').replace('★ ', '')}
         parentHref={`/weapons/${weapon}`}
         grandparent="Weapons"
         grandparentHref="/weapons"
@@ -174,8 +198,8 @@ export default async function SkinPage({ params }: Props) {
               href={`https://steamcommunity.com/market/listings/730/${encodeURIComponent(
                 `${data.name} (Minimal Wear)`
               )}`}
-              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
+              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow noreferrer"
@@ -188,8 +212,8 @@ export default async function SkinPage({ params }: Props) {
               href={`https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodeURIComponent(
                 data.name
               )}&ref=YJATPCd833`}
-              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
+              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow"
@@ -200,14 +224,14 @@ export default async function SkinPage({ params }: Props) {
             </a>
           </div>
 
-          <FloatBar minFloat={data.min_float} maxFloat={data.max_float} />
+          <FloatBar minFloat={data.minFloat} maxFloat={data.maxFloat} />
         </div>
 
         <div className="shrink basis-full lg:basis-1/2 self-stretch px-3 max-lg:order-3">
-          {collection || in_cases ? (
+          {collection || inCases.length > 0 ? (
             <div className="w-full flex flex-wrap justify-center p-4 bg-muted rounded-lg">
               {collection && <GlobalCollectionCard collection={collection} />}
-              {in_cases && in_cases.length && <GlobalCaseCard item={{ in_cases }} />}
+              {inCases.length > 0 && <GlobalCaseCard item={{ inCases }} />}
             </div>
           ) : null}
         </div>
@@ -220,9 +244,9 @@ export default async function SkinPage({ params }: Props) {
                 {data.description.split('\\n')[0]}
               </p>
             )}
-            {data.paint_index && (
+            {data.paintIndex && (
               <p>
-                <span className="font-medium text-secondary-foreground">Finish Catalog:</span> {data.paint_index}
+                <span className="font-medium text-secondary-foreground">Finish Catalog:</span> {data.paintIndex}
               </p>
             )}
           </div>
@@ -232,8 +256,8 @@ export default async function SkinPage({ params }: Props) {
           <div className="shrink basis-full self-stretch flex flex-col gap-4 px-3 pt-6 lg:pt-10 max-lg:order-5">
             <h2 className="text-2xl font-medium pt-4">{collection.name}</h2>
             <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {collectionSkins.map((skin) => (
-                <MiniSkinCard key={skin.id} weapon={skin.weapon_slug} skin={skin} />
+              {collectionSkins.map((s) => (
+                <MiniSkinCard key={s.id} weapon={s.weaponSlug ?? ''} skin={s} />
               ))}
             </div>
           </div>

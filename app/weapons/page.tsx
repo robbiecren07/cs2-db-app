@@ -1,14 +1,17 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { asc } from 'drizzle-orm'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import PageTitle from '@/components/PageTitle'
 import { WeaponCard } from './WeaponCard'
 import IntroParagraph from '@/components/IntroParagraph'
-import type { Weapons } from '@/types/custom'
+import type { Weapon } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'Browse All CS2 Weapons | Counter-Strike 2 Weapon Types',
@@ -18,15 +21,9 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Weapons[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM weapons ORDER BY name ASC`
-
-  if (!data) {
-    return null
-  }
-
-  return data as Weapons[]
+async function getData(): Promise<Weapon[] | null> {
+  const data = await db.select().from(schema.weapons).orderBy(asc(schema.weapons.name))
+  return data.length ? data : null
 }
 
 export default async function WeaponsPage() {

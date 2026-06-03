@@ -1,11 +1,11 @@
 'use client'
 
-import { Skins, Gloves } from '@/types/custom'
+import { SkinWithDetails } from '@/types/custom'
 import { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface Props {
-  skin: Skins | Gloves
+  skin: SkinWithDetails
 }
 
 interface Prices {

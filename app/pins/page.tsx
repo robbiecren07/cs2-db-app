@@ -1,15 +1,18 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, asc } from 'drizzle-orm'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import ItemCard from './ItemCard'
-import type { Collectables } from '@/types/custom'
+import type { CollectableWithRarity } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'CS2 Pins | Browse All Counter-Strike 2 Pins',
@@ -19,15 +22,29 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Collectables[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM collectables WHERE type = 'Pin' ORDER BY name ASC`
-
-  if (!data) {
-    return null
-  }
-
-  return data.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Collectables[]
+async function getData(): Promise<CollectableWithRarity[] | null> {
+  const data = await db
+    .select({
+      id: schema.collectables.id,
+      name: schema.collectables.name,
+      slug: schema.collectables.slug,
+      shortName: schema.collectables.shortName,
+      rarityId: schema.collectables.rarityId,
+      description: schema.collectables.description,
+      type: schema.collectables.type,
+      genuine: schema.collectables.genuine,
+      marketHashName: schema.collectables.marketHashName,
+      image: schema.collectables.image,
+      defIndex: schema.collectables.defIndex,
+      rarityName: schema.rarities.name,
+      rarityColor: schema.rarities.color,
+    })
+    .from(schema.collectables)
+    .leftJoin(schema.rarities, eq(schema.collectables.rarityId, schema.rarities.id))
+    .where(eq(schema.collectables.type, 'Pin'))
+    .orderBy(asc(schema.collectables.name))
+  if (!data.length) return null
+  return data.sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
 }
 
 export default async function PinsPage() {

@@ -1,6 +1,6 @@
-import { neon } from '@neondatabase/serverless'
-//import { signakit, signakitReady } from '@/lib/signakit'
-//import { getVisitorId } from '@/lib/visitor'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, and, not, inArray, isNotNull } from 'drizzle-orm'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import { SkinCard } from '@/components/SkinCard'
@@ -8,17 +8,17 @@ import { CaseCard } from '@/components/CaseCard'
 import Image from 'next/image'
 import Link from 'next/link'
 import HeroImage from '@/public/hero_image.png'
-import type { Crates, Skins } from '@/types/custom'
+import type { Crate, SkinWithDetails } from '@/types/custom'
 import type { Metadata } from 'next'
-//import ClientButton from '@/components/ClientButton'
 
 interface Data {
-  crate: Crates | null
-  skins: Skins[]
-  collection: Crates | null
-  collectionSkins: Skins[]
-  popularSkins: Skins[]
+  crate: Crate | null
+  skins: SkinWithDetails[]
+  collection: Crate | null
+  collectionSkins: SkinWithDetails[]
+  popularSkins: SkinWithDetails[]
 }
+
 
 export const metadata: Metadata = {
   title: 'CS2 Skins DB | Browse All Counter-Strike 2 Skins',
@@ -28,47 +28,77 @@ export const metadata: Metadata = {
   },
 }
 
+const skinSelect = {
+  id: schema.skins.id,
+  name: schema.skins.name,
+  slug: schema.skins.slug,
+  shortSlug: schema.skins.shortSlug,
+  shortName: schema.skins.shortName,
+  weaponId: schema.skins.weaponId,
+  weaponName: schema.skins.weaponName,
+  weaponSlug: schema.skins.weaponSlug,
+  categoryId: schema.skins.categoryId,
+  categoryName: schema.skins.categoryName,
+  rarityId: schema.skins.rarityId,
+  patternId: schema.skins.patternId,
+  patternName: schema.skins.patternName,
+  paintIndex: schema.skins.paintIndex,
+  minFloat: schema.skins.minFloat,
+  maxFloat: schema.skins.maxFloat,
+  stattrak: schema.skins.stattrak,
+  souvenir: schema.skins.souvenir,
+  featured: schema.skins.featured,
+  teamId: schema.skins.teamId,
+  description: schema.skins.description,
+  marketHashName: schema.skins.marketHashName,
+  legacyModel: schema.skins.legacyModel,
+  image: schema.skins.image,
+  rarityName: schema.rarities.name,
+  rarityColor: schema.rarities.color,
+}
+
 async function getData(): Promise<Data> {
   'use cache'
-  const sql = neon(process.env.DATABASE_URL!)
-
   try {
-    const [crateResponse, skinsResponse, collectionResponse, collectionSkinsResponse, popularSkinsResponse] =
-      await Promise.all([
-        sql`SELECT * FROM crates WHERE id = 'crate-4412' LIMIT 1`,
-        sql`SELECT * FROM skins WHERE case_ids @> ARRAY['crate-4412']::text[] AND weapon_type != 'Knives'`,
-        sql`SELECT * FROM crates WHERE id = 'crate-4412' LIMIT 1`,
-        sql`SELECT * FROM skins WHERE case_ids @> ARRAY['crate-4412']::text[] AND weapon_type != 'Knives'`,
-        sql`SELECT * FROM skins WHERE featured = true`,
-      ])
+    const FEATURED_CRATE_ID = 'crate-7007'
+    const [crateResponse, skinsResponse, popularSkinsResponse] = await Promise.all([
+      db.select().from(schema.crates).where(eq(schema.crates.id, FEATURED_CRATE_ID)).limit(1),
+      db
+        .select(skinSelect)
+        .from(schema.skins)
+        .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+        .innerJoin(schema.skinCrates, eq(schema.skinCrates.skinId, schema.skins.id))
+        .where(and(eq(schema.skinCrates.crateId, FEATURED_CRATE_ID), not(eq(schema.skins.categoryName, 'Knives')))),
+      db
+        .select(skinSelect)
+        .from(schema.skins)
+        .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+        .where(and(
+          inArray(schema.skins.rarityId, ['rarity_ancient_weapon', 'rarity_contraband_weapon']),
+          isNotNull(schema.skins.image),
+        ))
+        .limit(8),
+    ])
 
-    const crate = (crateResponse[0] as Crates) ?? null
-    const skins = (skinsResponse as Skins[]) || []
-    const collection = (collectionResponse[0] as Crates) ?? null
-    const collectionSkins = (collectionSkinsResponse as Skins[]) || []
-    const popularSkins = (popularSkinsResponse as Skins[]) || []
+    const crate = crateResponse[0] ?? null
+    const addDetails = (s: (typeof skinsResponse)[0]): SkinWithDetails => ({
+      ...s,
+      collectionName: null,
+      collectionSlug: null,
+    })
+    const skins = skinsResponse
+      .map(addDetails)
+      .sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
+    const popularSkins = popularSkinsResponse.map(addDetails)
 
-    return {
-      crate,
-      skins: skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)),
-      collection,
-      collectionSkins: collectionSkins.sort(
-        (a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)
-      ),
-      popularSkins,
-    }
-  } catch (error) {
+    return { crate, skins, collection: crate, collectionSkins: skins, popularSkins }
+  } catch {
     return { crate: null, skins: [], collection: null, collectionSkins: [], popularSkins: [] }
   }
 }
 
 export default async function Page() {
   const { crate, skins, collection, collectionSkins, popularSkins } = await getData()
-
-  // await signakitReady
-  // const visitorId = await getVisitorId()
-  // const userCtx = signakit.createUserContext(visitorId, { pageSlug: '/home/' })
-  // const flagEnabled = !!userCtx?.decide('homepage_redesign')?.enabled
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -94,10 +124,7 @@ export default async function Page() {
                   highPrice: 'N/A',
                   priceCurrency: 'USD',
                   availability: 'https://schema.org/InStock',
-                  seller: {
-                    '@type': 'Organization',
-                    name: 'Steam Community Market',
-                  },
+                  seller: { '@type': 'Organization', name: 'Steam Community Market' },
                 },
               },
             ]
@@ -118,10 +145,7 @@ export default async function Page() {
             highPrice: 'N/A',
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock',
-            seller: {
-              '@type': 'Organization',
-              name: 'Steam Community Market',
-            },
+            seller: { '@type': 'Organization', name: 'Steam Community Market' },
           },
         })),
       },
@@ -131,7 +155,7 @@ export default async function Page() {
         itemListElement: popularSkins.map((skin) => ({
           '@type': 'Product',
           name: skin.name,
-          description: `Popular skin for the ${skin.weapon_slug}.`,
+          description: `Popular skin for the ${skin.weaponSlug}.`,
           image: skin.image,
           sku: skin.id,
           offers: {
@@ -140,10 +164,7 @@ export default async function Page() {
             highPrice: 'N/A',
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock',
-            seller: {
-              '@type': 'Organization',
-              name: 'Steam Community Market',
-            },
+            seller: { '@type': 'Organization', name: 'Steam Community Market' },
           },
         })),
       },
@@ -166,17 +187,6 @@ export default async function Page() {
             you&lsquo;re a seasoned player or new to the world of CS2, our platform provides everything you need to
             enhance your gaming experience.
           </p>
-          {/* {flagEnabled ? (
-            <ClientButton href="/weapons" text="Browse Skins" />
-          ) : (
-            <Link
-              href="/weapons"
-              className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-              prefetch={false}
-            >
-              Browse Skins
-            </Link>
-          )} */}
           <Link
             href="/weapons"
             className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
@@ -204,7 +214,7 @@ export default async function Page() {
           {skins &&
             skins.length > 0 &&
             skins.slice(0, 3).map((skin, i) => {
-              return <SkinCard key={skin.id} weapon={skin.weapon_slug} skin={skin} index={i} useTooltip={false} />
+              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} index={i} useTooltip={false} />
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
@@ -231,7 +241,7 @@ export default async function Page() {
           {collectionSkins &&
             collectionSkins.length > 0 &&
             collectionSkins.map((skin) => {
-              return <SkinCard key={skin.id} weapon={skin.weapon_slug} skin={skin} useTooltip={false} />
+              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} useTooltip={false} />
             })}
         </div>
         <div className="flex justify-center items-center gap-3">
@@ -257,7 +267,7 @@ export default async function Page() {
           {popularSkins &&
             popularSkins.length > 0 &&
             popularSkins.map((skin) => {
-              return <SkinCard key={skin.id} weapon={skin.weapon_slug} skin={skin} />
+              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} />
             })}
         </div>
       </section>

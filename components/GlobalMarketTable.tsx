@@ -1,11 +1,11 @@
 'use client'
 
-import { Agents, Collectables, Patches } from '@/types/custom'
+import { AgentWithDetails, CollectableWithRarity, GraffitiWithRarity, KeychainWithRarity, MusicKitWithRarity, PatchWithRarity, StickerWithRarity } from '@/types/custom'
 import { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface Props {
-  item: Patches | Agents | Collectables
+  item: PatchWithRarity | AgentWithDetails | CollectableWithRarity | KeychainWithRarity | StickerWithRarity | GraffitiWithRarity | MusicKitWithRarity
 }
 
 interface Prices {

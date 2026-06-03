@@ -1,15 +1,18 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, asc } from 'drizzle-orm'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import ItemCard from './ItemCard'
-import type { Patches } from '@/types/custom'
+import type { PatchWithRarity } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'CS2 Agent Patches | Browse All Counter-Strike 2 Patches',
@@ -19,15 +22,26 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Patches[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM patches ORDER BY name ASC`
-
-  if (!data || data.length === 0) {
-    return null
-  }
-
-  return data.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Patches[]
+async function getData(): Promise<PatchWithRarity[] | null> {
+  const data = await db
+    .select({
+      id: schema.patches.id,
+      name: schema.patches.name,
+      slug: schema.patches.slug,
+      shortName: schema.patches.shortName,
+      rarityId: schema.patches.rarityId,
+      description: schema.patches.description,
+      marketHashName: schema.patches.marketHashName,
+      image: schema.patches.image,
+      defIndex: schema.patches.defIndex,
+      rarityName: schema.rarities.name,
+      rarityColor: schema.rarities.color,
+    })
+    .from(schema.patches)
+    .leftJoin(schema.rarities, eq(schema.patches.rarityId, schema.rarities.id))
+    .orderBy(asc(schema.patches.name))
+  if (!data.length) return null
+  return data.sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
 }
 
 export default async function PatchesPage() {

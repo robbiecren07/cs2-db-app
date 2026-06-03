@@ -1,7 +1,9 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, asc } from 'drizzle-orm'
 import { rarityOrder } from '@/lib/helpers'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
@@ -9,7 +11,8 @@ import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import { AgentsCard } from './AgentsCard'
 import type { Metadata } from 'next'
-import type { Agents } from '@/types/custom'
+import type { AgentWithDetails } from '@/types/custom'
+
 
 export const metadata: Metadata = {
   title: 'CS2 Agents Skins | Browse All Counter-Strike 2 Agents',
@@ -19,11 +22,37 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Agents[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM agents ORDER BY name ASC`
+async function getData(): Promise<AgentWithDetails[] | null> {
+  const agentsData = await db
+    .select({
+      id: schema.agents.id,
+      name: schema.agents.name,
+      slug: schema.agents.slug,
+      shortName: schema.agents.shortName,
+      subName: schema.agents.subName,
+      rarityId: schema.agents.rarityId,
+      teamId: schema.agents.teamId,
+      description: schema.agents.description,
+      marketHashName: schema.agents.marketHashName,
+      image: schema.agents.image,
+      defIndex: schema.agents.defIndex,
+      modelPlayer: schema.agents.modelPlayer,
+      rarityName: schema.rarities.name,
+      rarityColor: schema.rarities.color,
+    })
+    .from(schema.agents)
+    .leftJoin(schema.rarities, eq(schema.agents.rarityId, schema.rarities.id))
+    .orderBy(asc(schema.agents.name))
 
-  return data.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Agents[]
+  const { getCollectionsForAgents } = await import('@/db/queries')
+  const collectionMap = await getCollectionsForAgents(agentsData.map((a) => a.id))
+  return agentsData
+    .map((a) => ({
+      ...a,
+      collectionName: collectionMap.get(a.id)?.collectionName ?? null,
+      collectionSlug: collectionMap.get(a.id)?.collectionSlug ?? null,
+    }))
+    .sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
 }
 
 export default async function AgentsPage() {

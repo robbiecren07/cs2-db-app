@@ -1,6 +1,5 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import PageTitle from '@/components/PageTitle'
@@ -8,40 +7,32 @@ import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { SkinCard } from '@/components/SkinCard'
 import { rarityOrder } from '@/lib/helpers'
-import type { Collections, Skins } from '@/types/custom'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq } from 'drizzle-orm'
+import type { Collection, SkinWithDetails } from '@/types/custom'
 import type { Metadata } from 'next'
 
 interface Data {
-  data: Collections | null
-  skins: Skins[]
+  data: Collection | null
+  skins: SkinWithDetails[]
 }
 
 type Props = {
-  params: { collection: string }
+  params: Promise<{ collection: string }>
 }
 
+
 export async function generateStaticParams() {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT slug FROM collections`) as Collections[]
-
-  if (!data || data.length === 0) {
-    return []
-  }
-
-  return data.map((post) => ({
-    collection: post.slug,
-  }))
+  const data = await db.select({ slug: schema.collections.slug }).from(schema.collections)
+  return data.map((c) => ({ collection: c.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { collection } = await params
+  const data = await db.select().from(schema.collections).where(eq(schema.collections.slug, collection)).limit(1)
 
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM collections WHERE slug = ${collection} LIMIT 1`) as Collections[]
-
-  if (!data) {
-    return {}
-  }
+  if (!data.length) return {}
 
   return {
     title: `${data[0].name} | CS2 Collection | Counter-Strike 2 Skins`,
@@ -52,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       images: [
         {
-          url: data[0].image,
+          url: data[0].image ?? '',
           width: 512,
           height: 384,
           alt: `${data[0].name} skin modal`,
@@ -63,23 +54,51 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(collection: string): Promise<Data> {
-  const sql = neon(process.env.DATABASE_URL!)
-  try {
-    const [collectionsResponse, skinsResponse] = await Promise.all([
-      sql`SELECT * FROM collections WHERE slug = ${collection} LIMIT 1`,
-      sql`SELECT * FROM skins WHERE collections_slug = ${collection}`,
-    ])
+  const [collectionData, skinsData] = await Promise.all([
+    db.select().from(schema.collections).where(eq(schema.collections.slug, collection)).limit(1),
+    db
+      .select({
+        id: schema.skins.id,
+        name: schema.skins.name,
+        slug: schema.skins.slug,
+        shortSlug: schema.skins.shortSlug,
+        shortName: schema.skins.shortName,
+        weaponId: schema.skins.weaponId,
+        weaponName: schema.skins.weaponName,
+        weaponSlug: schema.skins.weaponSlug,
+        categoryId: schema.skins.categoryId,
+        categoryName: schema.skins.categoryName,
+        rarityId: schema.skins.rarityId,
+        patternId: schema.skins.patternId,
+        patternName: schema.skins.patternName,
+        paintIndex: schema.skins.paintIndex,
+        minFloat: schema.skins.minFloat,
+        maxFloat: schema.skins.maxFloat,
+        stattrak: schema.skins.stattrak,
+        souvenir: schema.skins.souvenir,
+        featured: schema.skins.featured,
+        teamId: schema.skins.teamId,
+        description: schema.skins.description,
+        marketHashName: schema.skins.marketHashName,
+        legacyModel: schema.skins.legacyModel,
+        image: schema.skins.image,
+        rarityName: schema.rarities.name,
+        rarityColor: schema.rarities.color,
+      })
+      .from(schema.skins)
+      .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+      .innerJoin(schema.skinCollections, eq(schema.skinCollections.skinId, schema.skins.id))
+      .innerJoin(schema.collections, eq(schema.skinCollections.collectionId, schema.collections.id))
+      .where(eq(schema.collections.slug, collection)),
+  ])
 
-    const data = collectionsResponse[0] as Collections
-    const skins = (skinsResponse as Skins[]) || []
+  if (!collectionData.length) return { data: null, skins: [] }
 
-    return {
-      data,
-      skins: skins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)),
-    }
-  } catch (error) {
-    return { data: null, skins: [] }
-  }
+  const skins = skinsData
+    .map((s) => ({ ...s, collectionName: collectionData[0].name, collectionSlug: collection }))
+    .sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
+
+  return { data: collectionData[0], skins }
 }
 
 export default async function CollectionPage({ params }: Props) {
@@ -104,7 +123,7 @@ export default async function CollectionPage({ params }: Props) {
     isRelatedTo: skins.map((skin) => ({
       '@type': 'Product',
       name: skin.name,
-      description: skin.description || `A ${skin.rarity_name} rarity skin for ${skin.weapon_name}.`,
+      description: skin.description || `A ${skin.rarityName} rarity skin for ${skin.weaponName}.`,
       image: skin.image,
       url: `https://cs2skinsdb.com/skins/${skin.slug}`,
     })),
@@ -136,8 +155,8 @@ export default async function CollectionPage({ params }: Props) {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {skins.map((skin, i) => {
             return (
-              <SkinCard key={skin.id} weapon={skin.weapon_slug} skin={skin} index={i}>
-                <h2 className="sr-only">{skin.weapon_name}</h2>
+              <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} index={i}>
+                <h2 className="sr-only">{skin.weaponName}</h2>
               </SkinCard>
             )
           })}

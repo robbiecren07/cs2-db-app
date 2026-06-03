@@ -1,14 +1,17 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, desc } from 'drizzle-orm'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import InternalContainer from '@/components/InternalContainer'
 import IntroParagraph from '@/components/IntroParagraph'
 import { CaseCard } from '@/components/CaseCard'
-import type { Crates } from '@/types/custom'
+import type { Crate } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'All CS2 Cases | Browse Counter-Strike 2 Cases and Skins',
@@ -19,15 +22,13 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Crates[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM crates ORDER BY first_sale_date DESC`
-
-  if (!data || data.length === 0) {
-    return null
-  }
-
-  return data as Crates[]
+async function getData(): Promise<Crate[] | null> {
+  const data = await db
+    .select()
+    .from(schema.crates)
+    .where(eq(schema.crates.type, 'Case'))
+    .orderBy(desc(schema.crates.firstSaleDate))
+  return data.length ? data : null
 }
 
 export default async function CasesPage() {
@@ -51,7 +52,7 @@ export default async function CasesPage() {
       description: crate.description || `Explore skins and items in the ${crate.name} case.`,
       url: `https://cs2skinsdb.com/cases/${crate.slug}`,
       image: crate.image,
-      datePublished: crate.first_sale_date,
+      datePublished: crate.firstSaleDate,
     })),
   }
 

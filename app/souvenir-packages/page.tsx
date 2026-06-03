@@ -1,14 +1,17 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { inArray, asc } from 'drizzle-orm'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import { PackagesCard } from './PackagesCard'
-import type { SouvenirPackages } from '@/types/custom'
+import type { Crate } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'CS2 Souvenir Packages | Browse All CS2 Souvenir Packages',
@@ -18,15 +21,13 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<SouvenirPackages[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM souvenir_packages ORDER BY name ASC`
-
-  if (!data) {
-    return null
-  }
-
-  return data as SouvenirPackages[]
+async function getData(): Promise<Crate[] | null> {
+  const data = await db
+    .select()
+    .from(schema.crates)
+    .where(inArray(schema.crates.type, ['Souvenir', 'Souvenir Highlight']))
+    .orderBy(asc(schema.crates.name))
+  return data.length ? data : null
 }
 
 export default async function PackagesPage() {

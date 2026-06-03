@@ -1,14 +1,17 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { asc } from 'drizzle-orm'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
 import { CollectionsCard } from './CollectionsCard'
-import type { Collections } from '@/types/custom'
+import type { Collection } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'CS2 Collections | Browse All Counter-Strike 2 Collections',
@@ -18,15 +21,9 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Collections[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM collections ORDER BY name ASC`
-
-  if (!data || data.length === 0) {
-    return null
-  }
-
-  return data as Collections[]
+async function getData(): Promise<Collection[] | null> {
+  const data = await db.select().from(schema.collections).orderBy(asc(schema.collections.name))
+  return data.length ? data : null
 }
 
 export default async function CollectionsPage() {

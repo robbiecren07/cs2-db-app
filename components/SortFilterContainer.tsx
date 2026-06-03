@@ -1,6 +1,6 @@
 'use client'
 
-import { Skins } from '@/types/custom'
+import { SkinWithDetails } from '@/types/custom'
 import { useState, useEffect } from 'react'
 import { rarityOrder } from '@/lib/helpers'
 import { SkinCard } from '@/components/SkinCard'
@@ -8,7 +8,7 @@ import SortFilterButton from './SortFilterButton'
 import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
 
 interface Data {
-  skins: Skins[]
+  skins: SkinWithDetails[]
   weapon: string
 }
 
@@ -34,13 +34,13 @@ export default function SortFilterContainer({ skins, weapon }: Data) {
     // Apply sorting
     switch (sortOption) {
       case 'ASC':
-        updatedSkins.sort((a, b) => a.short_name.localeCompare(b.short_name))
+        updatedSkins.sort((a, b) => (a.shortName ?? '').localeCompare(b.shortName ?? ''))
         break
       case 'DESC':
-        updatedSkins.sort((a, b) => b.short_name.localeCompare(a.short_name))
+        updatedSkins.sort((a, b) => (b.shortName ?? '').localeCompare(a.shortName ?? ''))
         break
       case 'Rarity':
-        updatedSkins.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999))
+        updatedSkins.sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
         break
       default:
         updatedSkins = [...updatedSkins] // default order

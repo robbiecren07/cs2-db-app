@@ -1,6 +1,5 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import InternalContainer from '@/components/InternalContainer'
@@ -8,22 +7,30 @@ import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import { Badge } from '@/components/ui/badge'
 import GlobalMarketTable from '@/components/GlobalMarketTable'
-import type { Collectables, RarityId } from '@/types/custom'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq } from 'drizzle-orm'
+import type { CollectableWithRarity, RarityId } from '@/types/custom'
 import type { Metadata } from 'next'
 
 type Props = {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
+
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
+  const data = await db
+    .select({
+      id: schema.collectables.id,
+      name: schema.collectables.name,
+      image: schema.collectables.image,
+    })
+    .from(schema.collectables)
+    .where(eq(schema.collectables.slug, slug))
+    .limit(1)
 
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM collectables WHERE slug = ${slug}`) as Collectables[]
-
-  if (!data) {
-    return {}
-  }
+  if (!data.length) return {}
 
   return {
     title: `${data[0].name} | CS2 Skins DB`,
@@ -34,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       images: [
         {
-          url: data[0].image,
+          url: data[0].image ?? '',
           width: 512,
           height: 384,
           alt: `${data[0].name} skin modal`,
@@ -44,15 +51,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getData(slug: string): Promise<Collectables | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM collectables WHERE slug = ${slug}`
-
-  if (!data) {
-    return null
-  }
-
-  return data[0] as Collectables
+async function getData(slug: string): Promise<CollectableWithRarity | null> {
+  const data = await db
+    .select({
+      id: schema.collectables.id,
+      name: schema.collectables.name,
+      slug: schema.collectables.slug,
+      shortName: schema.collectables.shortName,
+      rarityId: schema.collectables.rarityId,
+      description: schema.collectables.description,
+      type: schema.collectables.type,
+      genuine: schema.collectables.genuine,
+      marketHashName: schema.collectables.marketHashName,
+      image: schema.collectables.image,
+      defIndex: schema.collectables.defIndex,
+      rarityName: schema.rarities.name,
+      rarityColor: schema.rarities.color,
+    })
+    .from(schema.collectables)
+    .leftJoin(schema.rarities, eq(schema.collectables.rarityId, schema.rarities.id))
+    .where(eq(schema.collectables.slug, slug))
+    .limit(1)
+  return data[0] ?? null
 }
 
 export default async function SkinPage({ params }: Props) {
@@ -71,7 +91,7 @@ export default async function SkinPage({ params }: Props) {
       <div className="w-full flex flex-wrap gap-y-10 py-8 lg:py-12">
         <div className="shrink basis-full lg:basis-1/2 px-3 flex flex-col gap-6 h-full max-lg:order-1">
           <div
-            style={{ borderTopColor: data.rarity_color ? data.rarity_color : '' }}
+            style={{ borderTopColor: data.rarityColor ? data.rarityColor : '' }}
             className="w-full bg-muted p-4 space-y-4 rounded-lg border-t-4"
           >
             {data.image && (
@@ -85,7 +105,7 @@ export default async function SkinPage({ params }: Props) {
               />
             )}
             <div className="flex flex-wrap gap-2">
-              {data.rarity_id && <Badge variant={data.rarity_id as RarityId}>{data.rarity_name}</Badge>}
+              {data.rarityId && <Badge variant={data.rarityId as RarityId}>{data.rarityName}</Badge>}
             </div>
           </div>
         </div>
