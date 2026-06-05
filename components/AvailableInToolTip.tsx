@@ -34,7 +34,7 @@ export default function AvailableInToolTip({ item }: Props) {
                     <Link
                       key={caseItem.id}
                       href={`/cases/${slugify(caseItem.name, { lower: true, strict: true })}`}
-                      className="transition-colors hover:text-purple-500"
+                      className="transition-colors hover:text-violet-400"
                       prefetch={false}
                       aria-label={`View all skins in the ${caseItem.name} case`}
                     >

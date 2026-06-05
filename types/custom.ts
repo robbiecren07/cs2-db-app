@@ -75,6 +75,26 @@ export type MusicKitWithRarity = MusicKit & {
   rarityColor: string | null
 }
 
+// ─── Infinite scroll shared item shape ──────────────────────────────────────
+// Minimum fields required by InfiniteItemGrid + InfiniteItemCard.
+// All "Other" category pages map their specific types onto this interface.
+
+export interface InfiniteBaseItem {
+  id: string
+  name: string
+  slug: string
+  image: string | null
+  rarityId: string | null
+  rarityName: string | null
+  rarityColor: string | null
+  // Per-type optional display fields
+  shortName?: string | null   // patches, pins, agents
+  subName?: string | null     // agents
+  collectionName?: string | null // agents
+  effect?: string | null      // stickers
+  exclusive?: boolean | null  // music kits
+}
+
 // ─── Semantic aliases ────────────────────────────────────────────────────────
 
 // Gloves are skins filtered by categoryName = 'Gloves'

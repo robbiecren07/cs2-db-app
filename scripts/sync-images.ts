@@ -7,7 +7,7 @@
  *   npm run images:sync              → dry run (report only, no uploads)
  *   npm run images:sync -- --upload  → update DB + upload missing images
  *
- * Naming conventions discovered in Blob:
+ * Naming conventions:
  *   Skins (old):    skins/{weapon_id}_{pattern_id}_light_png.png
  *   Skins (new):    skins/{short_slug}.png
  *   Cases:          cases/{image_inventory_last_segment}_png.png
@@ -15,10 +15,10 @@
  *   Patches:        patches/{image_inventory_last_segment}_png.png
  *   Collectibles:   collectibles/{image_inventory_last_segment}_png.png
  *   Collections:    collections/{image_inventory_last_segment}_png.png
- *   Keychains:      keychains/{image_inventory_last_segment}_png.png  (not yet uploaded)
- *
- * Deferred (pages not built yet):
- *   graffiti, stickers, music_kits — run this script again when those pages ship.
+ *   Keychains:      keychains/{image_inventory_last_segment}_png.png
+ *   Stickers:       stickers/{image_inventory_last_segment}_png.png
+ *   Graffiti:       graffiti/{image_inventory_last_segment}_png.png
+ *   Music Kits:     music-kits/{image_inventory_last_segment}_png.png
  */
 
 import { readFileSync } from 'fs'
@@ -97,6 +97,9 @@ async function printSummary() {
     { label: 'patches', table: schema.patches },
     { label: 'collectables', table: schema.collectables },
     { label: 'keychains', table: schema.keychains },
+    { label: 'stickers', table: schema.stickers },
+    { label: 'graffiti', table: schema.graffiti },
+    { label: 'music_kits', table: schema.musicKits },
   ]
   for (const { label, table } of tables) {
     const [r] = await db
@@ -340,6 +343,36 @@ async function main() {
     jsonFolder: 'keychains',
   })
 
+  await syncCategory({
+    label: 'Stickers',
+    blobPrefix: 'stickers/',
+    table: schema.stickers,
+    idCol: schema.stickers.id,
+    imageCol: schema.stickers.image,
+    jsonFile: 'stickers.json',
+    jsonFolder: 'stickers',
+  })
+
+  await syncCategory({
+    label: 'Graffiti',
+    blobPrefix: 'graffiti/',
+    table: schema.graffiti,
+    idCol: schema.graffiti.id,
+    imageCol: schema.graffiti.image,
+    jsonFile: 'graffiti.json',
+    jsonFolder: 'graffiti',
+  })
+
+  await syncCategory({
+    label: 'Music Kits',
+    blobPrefix: 'music-kits/',
+    table: schema.musicKits,
+    idCol: schema.musicKits.id,
+    imageCol: schema.musicKits.image,
+    jsonFile: 'music_kits.json',
+    jsonFolder: 'music-kits',
+  })
+
   console.log('\n── Final State ──────────────────────────────────────────────')
   await printSummary()
 
@@ -348,7 +381,6 @@ async function main() {
     console.log('Run `npm run images:sync -- --upload` to execute uploads.\n')
   } else {
     console.log('Image sync complete.\n')
-    console.log('Deferred (no pages yet): graffiti, stickers, music_kits\n')
   }
 }
 

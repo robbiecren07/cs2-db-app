@@ -189,7 +189,7 @@ export default async function SkinPage({ params }: Props) {
 
         <div className="shrink basis-full lg:basis-1/2 px-3 flex flex-col space-y-8 max-lg:order-4 overflow-hidden">
           <div className="w-full space-y-2 px-2">
-            <h2 className="text-lg text-center">Steam Community Market Prices</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-accent-foreground text-center">Steam Community Market Prices</h2>
             <MarketTable skin={data} />
           </div>
 
@@ -229,7 +229,7 @@ export default async function SkinPage({ params }: Props) {
 
         <div className="shrink basis-full lg:basis-1/2 self-stretch px-3 max-lg:order-3">
           {collection || inCases.length > 0 ? (
-            <div className="w-full flex flex-wrap justify-center p-4 bg-muted rounded-lg">
+            <div className="w-full flex flex-wrap justify-center p-4 bg-muted rounded-lg border border-[#1a1c2e]">
               {collection && <GlobalCollectionCard collection={collection} />}
               {inCases.length > 0 && <GlobalCaseCard item={{ inCases }} />}
             </div>
@@ -237,7 +237,7 @@ export default async function SkinPage({ params }: Props) {
         </div>
 
         <div className="shrink basis-full self-start lg:basis-1/2 px-3 max-lg:order-2">
-          <div className="w-full h-full p-4 bg-muted space-y-3 rounded-lg text-accent-foreground text-sm">
+          <div className="w-full h-full p-4 bg-muted space-y-3 rounded-lg border border-[#1a1c2e] text-accent-foreground text-sm">
             {data.description && (
               <p>
                 <span className="font-medium text-secondary-foreground">Description:</span>{' '}
@@ -254,7 +254,7 @@ export default async function SkinPage({ params }: Props) {
 
         {collection && collectionSkins && (
           <div className="shrink basis-full self-stretch flex flex-col gap-4 px-3 pt-6 lg:pt-10 max-lg:order-5">
-            <h2 className="text-2xl font-medium pt-4">{collection.name}</h2>
+            <h2 className="text-2xl font-medium border-l-2 border-violet-500 pl-4">{collection.name}</h2>
             <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {collectionSkins.map((s) => (
                 <MiniSkinCard key={s.id} weapon={s.weaponSlug ?? ''} skin={s} />

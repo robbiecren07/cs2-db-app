@@ -40,7 +40,7 @@ export function SkinCard({ weapon, skin, index, useTooltip = true, children }: P
             <object className="relative">
               <Link
                 href={`/collections/${skin.collectionSlug}`}
-                className="text-xs text-accent-foreground font-light transition-colors hover:text-purple-500"
+                className="text-xs text-accent-foreground font-light transition-colors hover:text-violet-400"
                 target="_self"
                 prefetch={false}
                 aria-label={`View all skins in the ${skin.collectionName} collection`}

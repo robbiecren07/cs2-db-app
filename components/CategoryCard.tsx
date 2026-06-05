@@ -39,7 +39,7 @@ export default function CategoryCard({ weaponName, knifeName, subTitle }: Props)
 
       <Image
         alt={`Default ${weaponName} skin modal`}
-        className="h-[180px] w-full aspect-video object-contain"
+        className="h-45 w-full aspect-video object-contain"
         src={`/${weaponName.replace(' ', '_')}.webp`}
         width="290"
         height="180"

@@ -290,7 +290,7 @@ export function Menu() {
           />
         </SheetTrigger>
         <SheetContent aria-label="Mobile Navigation Menu">
-          <nav className="h-full pt-2 pr-3 text-sm overflow-y-auto" aria-label="Mobile Navigation">
+          <nav className="h-full pt-2 px-3 text-sm overflow-y-auto" aria-label="Mobile Navigation">
             <ul>
               {components.map((component) => (
                 <li key={component.title}>

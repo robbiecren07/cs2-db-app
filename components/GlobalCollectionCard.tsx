@@ -36,7 +36,7 @@ export default function GlobalCollectionCard({ collection }: Props) {
             />
           )}
           <h3
-            className="text-sm text-center transition-colors group-hover:text-purple-600"
+            className="text-sm text-center transition-colors group-hover:text-violet-400"
             aria-label={`Collection name: ${collection.name}`}
           >
             {collection.name}

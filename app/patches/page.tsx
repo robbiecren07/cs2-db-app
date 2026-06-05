@@ -4,15 +4,17 @@ import { notFound } from 'next/navigation'
 import { db } from '@/db'
 import * as schema from '@/db/schema'
 import { eq, asc } from 'drizzle-orm'
-import { rarityOrder } from '@/lib/helpers'
+import { rarityOrderExpr } from '@/db/ordering'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
-import ItemCard from './ItemCard'
-import type { PatchWithRarity } from '@/types/custom'
+import InfiniteItemGrid from '@/components/InfiniteItemGrid'
+import { fetchMorePatches } from './actions'
+import type { InfiniteBaseItem } from '@/types/custom'
 import type { Metadata } from 'next'
 
+const PAGE_SIZE = 52
 
 export const metadata: Metadata = {
   title: 'CS2 Agent Patches | Browse All Counter-Strike 2 Patches',
@@ -22,47 +24,36 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<PatchWithRarity[] | null> {
+async function getData(): Promise<InfiniteBaseItem[]> {
   const data = await db
     .select({
       id: schema.patches.id,
       name: schema.patches.name,
-      slug: schema.patches.slug,
       shortName: schema.patches.shortName,
-      rarityId: schema.patches.rarityId,
-      description: schema.patches.description,
-      marketHashName: schema.patches.marketHashName,
+      slug: schema.patches.slug,
       image: schema.patches.image,
-      defIndex: schema.patches.defIndex,
+      rarityId: schema.patches.rarityId,
       rarityName: schema.rarities.name,
       rarityColor: schema.rarities.color,
     })
     .from(schema.patches)
     .leftJoin(schema.rarities, eq(schema.patches.rarityId, schema.rarities.id))
-    .orderBy(asc(schema.patches.name))
-  if (!data.length) return null
-  return data.sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
+    .orderBy(rarityOrderExpr(schema.patches.rarityId), asc(schema.patches.name))
+    .limit(PAGE_SIZE)
+  return data
 }
 
 export default async function PatchesPage() {
   const data = await getData()
 
-  if (!data) {
-    return notFound()
-  }
+  if (!data.length) return notFound()
 
   return (
     <InternalContainer>
       <BreadCrumbBar active="Patches" />
       <PageTitle title="All CS2 Agent Patches" />
-
-      <IntroParagraph content="Welcome to the Agent Patches section of CS2 Skins DB. Here, you can explore a comprehensive collection of patches available for agents in Counter-Strike 2. Each patch offers a unique design, allowing you to customize your agents and add a personal touch to your gameplay. Whether you're looking for rare patches to complete your collection or want to stay updated with the latest additions, our detailed database provides all the information you need. Dive into the world of CS2 Agent Patches and discover the perfect customizations to enhance your gaming experience." />
-
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8 lg:py-12">
-        {data.map((item, index) => {
-          return <ItemCard key={item.id} item={item} index={index} />
-        })}
-      </div>
+      <IntroParagraph content="Welcome to the Agent Patches section of CS2 Skins DB. Here, you can explore a comprehensive collection of patches available for agents in Counter-Strike 2. Each patch offers a unique design, allowing you to customize your agents and add a personal touch to your gameplay." />
+      <InfiniteItemGrid initialItems={data} fetchMore={fetchMorePatches} basePath="/patches" pageSize={PAGE_SIZE} />
     </InternalContainer>
   )
 }

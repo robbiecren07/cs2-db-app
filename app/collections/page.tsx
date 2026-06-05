@@ -12,7 +12,6 @@ import { CollectionsCard } from './CollectionsCard'
 import type { Collection } from '@/types/custom'
 import type { Metadata } from 'next'
 
-
 export const metadata: Metadata = {
   title: 'CS2 Collections | Browse All Counter-Strike 2 Collections',
   description: `Explore all CS2 Collections in Counter-Strike 2. Discover detailed information on each collection's unique weapon skins, prices, and rarity. Stay updated with the latest and most coveted collections in the game.`,
@@ -50,6 +49,8 @@ export default async function CollectionsPage() {
     })),
   }
 
+  const featuredCollections = data.filter((collection) => collection.id === 'collection-set-timed-drops-achroma')
+
   return (
     <InternalContainer>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
@@ -60,16 +61,18 @@ export default async function CollectionsPage() {
       <IntroParagraph content="Welcome to the CS2 Collections page, your comprehensive guide to all the unique weapon collections in Counter-Strike 2. Here, you'll find detailed information on each collection, including the most coveted and rarest skins. Whether you're a seasoned player or new to the game, our database provides everything you need to know about the latest and most iconic collections. Dive in and discover the perfect skins to enhance your gameplay and showcase your style." />
 
       <div className="w-full grid gap-4 py-8 lg:py-12">
-        <h2 className="text-3xl font-medium text-accent-foreground max-sm:text-center">Latest Collections</h2>
+        <h2 className="text-3xl font-medium border-l-2 border-violet-500 pl-4 max-sm:text-center">
+          Latest Collections
+        </h2>
         <div className="w-full grid grid-cols-card gap-6">
-          {data.map((collection, index) => {
-            return collection.featured && <CollectionsCard key={collection.id} collection={collection} index={index} />
-          })}
+          {featuredCollections && (
+            <CollectionsCard key={featuredCollections[0].id} collection={featuredCollections[0]} index={1} />
+          )}
         </div>
       </div>
 
-      <div className="w-full grid gap-4 py-8 lg:py-12">
-        <h2 className="text-3xl font-medium text-accent-foreground max-sm:text-center">All Collections</h2>
+      <div className="w-full grid gap-4 border-t border-[#1a1c2e] py-8 lg:py-12">
+        <h2 className="text-3xl font-medium border-l-2 border-violet-500 pl-4 max-sm:text-center">All Collections</h2>
         <div className="w-full grid grid-cols-card gap-6">
           {data.map((collection, index) => {
             return <CollectionsCard key={collection.id} collection={collection} index={index} />

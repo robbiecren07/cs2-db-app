@@ -19,7 +19,6 @@ interface Data {
   popularSkins: SkinWithDetails[]
 }
 
-
 export const metadata: Metadata = {
   title: 'CS2 Skins DB | Browse All Counter-Strike 2 Skins',
   description: `Explore CS2 Skins DB, your ultimate resource for all Counter-Strike 2 skins, cases, collections, gloves, and more. Stay updated with the latest in-game items, market prices.`,
@@ -73,10 +72,12 @@ async function getData(): Promise<Data> {
         .select(skinSelect)
         .from(schema.skins)
         .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
-        .where(and(
-          inArray(schema.skins.rarityId, ['rarity_ancient_weapon', 'rarity_contraband_weapon']),
-          isNotNull(schema.skins.image),
-        ))
+        .where(
+          and(
+            inArray(schema.skins.rarityId, ['rarity_ancient_weapon', 'rarity_contraband_weapon']),
+            isNotNull(schema.skins.image)
+          )
+        )
         .limit(8),
     ])
 
@@ -172,105 +173,111 @@ export default async function Page() {
   }
 
   return (
-    <InternalContainer>
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      <section className="relative w-full min-h-[40dvh] lg:min-h-[50dvh] flex justify-center items-center gap-6 pt-8">
-        <div className="flex-1 flex flex-col gap-8">
-          <h1 className="text-2xl md:text-4xl font-medium text-accent-foreground max-sm:text-center">
-            Welcome to{' '}
-            <span className="text-4xl md:text-5xl block font-mono text-purple-600 font-bold">CS2 Skins DB</span>
-          </h1>
-          <p className="xl:max-w-xl font-light max-sm:text-center">
-            The the ultimate destination for Counter-Strike 2 enthusiasts. Our comprehensive database offers detailed
-            information on all skins, cases, collections, and more, helping you stay ahead in the game. Whether
-            you&lsquo;re a seasoned player or new to the world of CS2, our platform provides everything you need to
-            enhance your gaming experience.
-          </p>
-          <Link
-            href="/weapons"
-            className="max-w-max h-11 rounded-md px-8 max-sm:mx-auto inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-            prefetch={false}
-          >
-            Browse Skins
-          </Link>
+      {/* Hero — full-width so glow bleeds to viewport edges */}
+      <section className="relative w-full py-14 lg:py-20 overflow-hidden border-b border-[#1a1c2e]">
+        {/* Background glow orbs */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-24 -left-12 w-150 h-150 rounded-full bg-violet-950/60 blur-[120px]" />
+          <div className="absolute top-0 right-0 w-90 h-90 rounded-full bg-violet-900/25 blur-[100px]" />
         </div>
 
-        <div className="max-lg:hidden w-full max-w-lg flex">
-          <Image src={HeroImage} alt="Karambit Black Blackpearl skin modal" priority />
+        <div className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          <div className="flex flex-col gap-6 max-lg:items-center max-lg:text-center lg:max-w-xl">
+            <h1>
+              <span className="block text-sm font-medium tracking-[0.2em] uppercase text-accent-foreground mb-3">
+                The Ultimate CS2 Reference
+              </span>
+              <span className="block text-5xl md:text-6xl font-mono font-bold bg-linear-to-br from-violet-300 via-violet-500 to-violet-700 bg-clip-text text-transparent leading-[1.1]">
+                CS2 Skins DB
+              </span>
+            </h1>
+            <p className="font-light text-secondary-foreground leading-relaxed">
+              Your comprehensive database for every Counter-Strike 2 skin, case, collection, and item. Detailed stats,
+              rarity tiers, float values, and market data — all in one place.
+            </p>
+            <Link href="/weapons" className="btn-primary max-w-max" prefetch={false}>
+              Browse Skins
+            </Link>
+          </div>
+
+          <div className="hidden lg:flex w-full max-w-130 shrink-0">
+            <Image src={HeroImage} alt="Karambit Black Pearl skin" priority />
+          </div>
         </div>
       </section>
 
-      <section className="w-full py-16">
-        <div className="w-full lg:max-w-md space-y-3">
-          <h2 className="text-3xl font-medium text-accent-foreground max-sm:text-center">Latest CS2 Case</h2>
-          <p className="max-sm:text-center">
-            Stay updated with the newest cases in CS2. Find out what&lsquo;s inside each case, including the latest
-            skins and their market prices.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
-          {crate && <CaseCard key={crate.id} crate={crate} index={1} />}
-          {skins &&
-            skins.length > 0 &&
-            skins.slice(0, 3).map((skin, i) => {
-              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} index={i} useTooltip={false} />
-            })}
-        </div>
-        <div className="flex justify-center items-center gap-3">
-          <Link
-            href="/cases"
-            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-            prefetch={false}
-          >
-            Browse All Cases
-          </Link>
-        </div>
-      </section>
+      <InternalContainer>
+        {/* Latest Case */}
+        <section className="w-full py-16">
+          <div className="w-full lg:max-w-md space-y-3 border-l-2 border-violet-500 pl-4">
+            <h2 className="text-3xl font-medium text-foreground max-sm:text-center">Latest CS2 Case</h2>
+            <p className="text-secondary-foreground max-sm:text-center">
+              Stay updated with the newest cases in CS2. Find out what&apos;s inside each case, including the latest
+              skins and their rarity breakdown.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
+            {crate && <CaseCard key={crate.id} crate={crate} index={1} />}
+            {skins &&
+              skins.length > 0 &&
+              skins.slice(0, 3).map((skin, i) => {
+                return (
+                  <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} index={i} useTooltip={false} />
+                )
+              })}
+          </div>
+          <div className="flex justify-center items-center gap-3">
+            <Link href="/cases" className="btn-primary max-w-max" prefetch={false}>
+              Browse All Cases
+            </Link>
+          </div>
+        </section>
 
-      <section className="w-full py-16">
-        <div className="w-full lg:max-w-md space-y-3">
-          <h2 className="text-2xl font-medium text-accent-foreground max-sm:text-center">Featured Collections</h2>
-          <p className="max-sm:text-center">
-            Discover one of the most sought-after collections in Counter-Strike 2, the The Dreams & Nightmares
-            Collection.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
-          {collection && <CaseCard key={collection.id} crate={collection} />}
-          {collectionSkins &&
-            collectionSkins.length > 0 &&
-            collectionSkins.map((skin) => {
-              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} useTooltip={false} />
-            })}
-        </div>
-        <div className="flex justify-center items-center gap-3">
-          <Link
-            href="/collections"
-            className="max-w-max h-11 rounded-md px-8 inline-flex items-center justify-center whitespace-nowrap bg-purple-700 transition-colors hover:bg-purple-800"
-            prefetch={false}
-          >
-            Browse All Collections
-          </Link>
-        </div>
-      </section>
+        {/* Featured Collection */}
+        <section className="w-full py-16 border-t border-[#1a1c2e]">
+          <div className="w-full lg:max-w-md space-y-3 border-l-2 border-violet-500 pl-4">
+            <h2 className="text-3xl font-medium text-foreground max-sm:text-center">Featured Collection</h2>
+            <p className="text-secondary-foreground max-sm:text-center">
+              Discover one of the most sought-after collections in Counter-Strike 2 — the Dreams &amp; Nightmares
+              Collection.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
+            {collection && <CaseCard key={collection.id} crate={collection} />}
+            {collectionSkins &&
+              collectionSkins.length > 0 &&
+              collectionSkins.map((skin) => {
+                return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} useTooltip={false} />
+              })}
+          </div>
+          <div className="flex justify-center items-center gap-3">
+            <Link href="/collections" className="btn-primary max-w-max" prefetch={false}>
+              Browse All Collections
+            </Link>
+          </div>
+        </section>
 
-      <section className="w-full py-16">
-        <div className="w-full lg:max-w-md space-y-3">
-          <h2 className="text-2xl font-medium text-accent-foreground max-sm:text-center">Popular CS2 Skins</h2>
-          <p className="max-sm:text-center">
-            Browse through the most popular skins in Counter-Strike 2. See detailed stats, market prices, and find out
-            which cases they come from.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
-          {popularSkins &&
-            popularSkins.length > 0 &&
-            popularSkins.map((skin) => {
-              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} />
-            })}
-        </div>
-      </section>
-    </InternalContainer>
+        {/* Popular Skins */}
+        <section className="w-full py-16 border-t border-[#1a1c2e]">
+          <div className="w-full lg:max-w-md space-y-3 border-l-2 border-violet-500 pl-4">
+            <h2 className="text-3xl font-medium text-foreground max-sm:text-center">Popular CS2 Skins</h2>
+            <p className="text-secondary-foreground max-sm:text-center">
+              Browse the most coveted skins in Counter-Strike 2. Detailed stats, float ranges, StatTrak availability,
+              and which cases they drop from.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
+            {popularSkins &&
+              popularSkins.length > 0 &&
+              popularSkins.map((skin) => {
+                return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} />
+              })}
+          </div>
+        </section>
+      </InternalContainer>
+    </>
   )
 }

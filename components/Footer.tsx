@@ -2,7 +2,7 @@ import { year } from '@/lib/currentYear'
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-primary mt-auto py-8 border-t border-[#3A3A40]" aria-label="Footer">
+    <footer className="w-full bg-primary mt-auto py-8 border-t border-[#1a1c2e]" aria-label="Footer">
       <div className="w-full max-w-3xl mx-auto px-4 flex flex-col gap-2 justify-center items-center">
         <p className="text-xs text-center" aria-label="Copyright Notice">
           &copy; {year} cs2skinsdb.com
