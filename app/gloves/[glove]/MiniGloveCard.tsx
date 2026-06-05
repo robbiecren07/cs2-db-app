@@ -1,10 +1,10 @@
-import { Gloves } from '@/types/custom'
+import { SkinWithDetails } from '@/types/custom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CardContent, Card } from '@/components/ui/card'
 
 interface Props {
-  item: Gloves
+  item: SkinWithDetails
 }
 
 export default function MiniGloveCard({ item }: Props) {
@@ -20,9 +20,9 @@ export default function MiniGloveCard({ item }: Props) {
         <CardContent className="flex flex-col h-full p-4">
           <h3
             className="font-medium transition-colors group-hover:text-white"
-            aria-label={`Glove name: ${item.short_name}`}
+            aria-label={`Glove name: ${item.shortName}`}
           >
-            {item.short_name}
+            {item.shortName}
           </h3>
           <div className="my-4 mx-auto transition-transform group-hover:scale-110">
             {item.image && (

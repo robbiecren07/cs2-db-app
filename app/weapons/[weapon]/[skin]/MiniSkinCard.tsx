@@ -1,4 +1,4 @@
-import { RarityId, Skins } from '@/types/custom'
+import { RarityId, SkinWithDetails } from '@/types/custom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CardContent, Card } from '@/components/ui/card'
@@ -6,14 +6,14 @@ import { Badge } from '@/components/ui/badge'
 
 interface Props {
   weapon: string
-  skin: Skins
+  skin: SkinWithDetails
 }
 
 export default function MiniSkinCard({ weapon, skin }: Props) {
   return (
     <Link
-      href={`/weapons/${weapon}/${skin.short_slug}`}
-      style={{ borderTopColor: skin.rarity_color ? skin.rarity_color : '' }}
+      href={`/weapons/${weapon}/${skin.shortSlug}`}
+      style={{ borderTopColor: skin.rarityColor ? skin.rarityColor : '' }}
       className="card group w-full"
       target="_self"
       prefetch={false}
@@ -23,9 +23,9 @@ export default function MiniSkinCard({ weapon, skin }: Props) {
         <CardContent className="flex flex-col h-full p-4">
           <h3
             className="text-sm font-medium transition-colors group-hover:text-white"
-            aria-label={`Skin name: ${skin.short_name}`}
+            aria-label={`Skin name: ${skin.shortName}`}
           >
-            {skin.short_name}
+            {skin.shortName}
           </h3>
           <div className="my-4 mx-auto transition-transform group-hover:scale-110">
             {skin.image && (
@@ -40,13 +40,13 @@ export default function MiniSkinCard({ weapon, skin }: Props) {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-auto">
-            {skin.rarity_id && (
+            {skin.rarityId && (
               <Badge
-                variant={skin.rarity_id as RarityId}
+                variant={skin.rarityId as RarityId}
                 className="text-[10px]"
-                aria-label={`Rarity: ${skin.rarity_name}`}
+                aria-label={`Rarity: ${skin.rarityName}`}
               >
-                {skin.rarity_name}
+                {skin.rarityName}
               </Badge>
             )}
             {skin.stattrak && (

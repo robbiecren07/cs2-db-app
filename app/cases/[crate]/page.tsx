@@ -1,6 +1,5 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import InternalContainer from '@/components/InternalContainer'
@@ -11,41 +10,33 @@ import { SkinCard } from '@/components/SkinCard'
 import { CardContent, Card } from '@/components/ui/card'
 import IntroParagraph from '@/components/IntroParagraph'
 import { rarityOrder } from '@/lib/helpers'
-import type { Crates, Gloves, Skins } from '@/types/custom'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, and, not } from 'drizzle-orm'
+import type { Crate, SkinWithDetails } from '@/types/custom'
 import type { Metadata } from 'next'
 
 interface Data {
-  data: Crates | null
-  skins: Skins[]
-  gloves: Gloves[]
+  data: Crate | null
+  skins: SkinWithDetails[]
+  gloves: SkinWithDetails[]
 }
 
 type Props = {
-  params: { crate: string }
+  params: Promise<{ crate: string }>
 }
 
+
 export async function generateStaticParams() {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT slug FROM crates`) as Crates[]
-
-  if (!data || data.length === 0) {
-    return []
-  }
-
-  return data.map((post) => ({
-    case: post.slug,
-  }))
+  const data = await db.select({ slug: schema.crates.slug }).from(schema.crates).where(eq(schema.crates.type, 'Case'))
+  return data.map((c) => ({ crate: c.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { crate } = await params
+  const data = await db.select().from(schema.crates).where(eq(schema.crates.slug, crate)).limit(1)
 
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM crates WHERE slug = ${crate} LIMIT 1`) as Crates[]
-
-  if (!data || data.length === 0) {
-    return {}
-  }
+  if (!data.length) return {}
 
   return {
     title: `${data[0].name} | CS2 Weapon Skins and Knives`,
@@ -56,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       images: [
         {
-          url: data[0].image,
+          url: data[0].image ?? '',
           width: 512,
           height: 384,
           alt: `${data[0].name} skin modal`,
@@ -66,32 +57,61 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+const skinSelectWithRarity = {
+  id: schema.skins.id,
+  name: schema.skins.name,
+  slug: schema.skins.slug,
+  shortSlug: schema.skins.shortSlug,
+  shortName: schema.skins.shortName,
+  weaponId: schema.skins.weaponId,
+  weaponName: schema.skins.weaponName,
+  weaponSlug: schema.skins.weaponSlug,
+  categoryId: schema.skins.categoryId,
+  categoryName: schema.skins.categoryName,
+  rarityId: schema.skins.rarityId,
+  patternId: schema.skins.patternId,
+  patternName: schema.skins.patternName,
+  paintIndex: schema.skins.paintIndex,
+  minFloat: schema.skins.minFloat,
+  maxFloat: schema.skins.maxFloat,
+  stattrak: schema.skins.stattrak,
+  souvenir: schema.skins.souvenir,
+  featured: schema.skins.featured,
+  teamId: schema.skins.teamId,
+  description: schema.skins.description,
+  marketHashName: schema.skins.marketHashName,
+  legacyModel: schema.skins.legacyModel,
+  image: schema.skins.image,
+  rarityName: schema.rarities.name,
+  rarityColor: schema.rarities.color,
+}
+
 async function getData(crate: string): Promise<Data> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM crates WHERE slug = ${crate} LIMIT 1`
+  const crateData = await db.select().from(schema.crates).where(eq(schema.crates.slug, crate)).limit(1)
+  if (!crateData.length) return { data: null, skins: [], gloves: [] }
 
-  if (!data || data.length === 0) {
-    return { data: null, skins: [], gloves: [] }
-  }
+  const crateId = crateData[0].id
+  const [allSkins, gloveRows] = await Promise.all([
+    db
+      .select(skinSelectWithRarity)
+      .from(schema.skins)
+      .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+      .innerJoin(schema.skinCrates, eq(schema.skinCrates.skinId, schema.skins.id))
+      .where(and(eq(schema.skinCrates.crateId, crateId), not(eq(schema.skins.categoryName, 'Gloves')))),
+    db
+      .select(skinSelectWithRarity)
+      .from(schema.skins)
+      .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+      .innerJoin(schema.skinCrates, eq(schema.skinCrates.skinId, schema.skins.id))
+      .where(and(eq(schema.skinCrates.crateId, crateId), eq(schema.skins.categoryName, 'Gloves'))),
+  ])
 
-  const skinData = await sql`SELECT * FROM skins WHERE case_ids @> ARRAY[${data[0].id}]`
+  const skins = allSkins
+    .map((s) => ({ ...s, collectionName: null, collectionSlug: null }))
+    .sort((a, b) => (rarityOrder[a.rarityId ?? ''] || 999) - (rarityOrder[b.rarityId ?? ''] || 999))
+  const gloves = gloveRows.map((g) => ({ ...g, collectionName: null, collectionSlug: null }))
 
-  if (!skinData) {
-    return { data: data[0] as Crates, skins: [], gloves: [] }
-  }
-
-  const gloveData = await sql`SELECT * FROM gloves WHERE case_ids @> ARRAY[${data[0].id}]`
-
-  if (!gloveData) {
-    return { data: data[0] as Crates, skins: skinData as Skins[], gloves: [] }
-  }
-
-  return {
-    data: data[0] as Crates,
-    skins:
-      (skinData.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Skins[]) || [],
-    gloves: (gloveData as Gloves[]) || [],
-  }
+  return { data: crateData[0], skins, gloves }
 }
 
 export default async function CasePage({ params }: Props) {
@@ -102,18 +122,18 @@ export default async function CasePage({ params }: Props) {
     return notFound()
   }
 
-  const containsKnives = skins.some((skin) => skin.weapon_type === 'Knives')
-  const knivesCount = skins.filter((skin) => skin.weapon_type === 'Knives').length
-  const knifeImage = skins.find((skin) => skin.weapon_type === 'Knives')?.image
+  const containsKnives = skins.some((skin) => skin.categoryName === 'Knives')
+  const knivesCount = skins.filter((skin) => skin.categoryName === 'Knives').length
+  const knifeImage = skins.find((skin) => skin.categoryName === 'Knives')?.image
 
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: `${data.name} Case`,
     description: `Explore the ${data.name} Case in Counter-Strike 2. Discover the best weapon skins, knives, and gloves available in this case.`,
-    image: data.image, // Replace with actual case image URL
+    image: data.image,
     url: `https://cs2skinsdb.com/cases/${data.slug}`,
-    releaseDate: data.first_sale_date,
+    releaseDate: data.firstSaleDate,
     brand: {
       '@type': 'Thing',
       name: 'Counter-Strike 2',
@@ -122,7 +142,7 @@ export default async function CasePage({ params }: Props) {
       ...skins.map((skin) => ({
         '@type': 'Product',
         name: skin.name,
-        description: skin.description || `A ${skin.rarity_name} rarity skin for ${skin.weapon_name}.`,
+        description: skin.description || `A ${skin.rarityName} rarity skin for ${skin.weaponName}.`,
         image: skin.image,
         url: `https://cs2skinsdb.com/skins/${skin.slug}`,
       })),
@@ -143,7 +163,7 @@ export default async function CasePage({ params }: Props) {
       <BreadCrumbBar active={data.name} parent="Cases" parentHref="/cases" />
       <PageTitle title={data.name} />
 
-      <p className="text-center font-light pt-2">Released: {data.first_sale_date}</p>
+      <p className="text-center font-light pt-2">Released: {data.firstSaleDate}</p>
 
       <div className="w-full flex flex-col gap-6 xl:gap-10 pt-4">
         <div className="grow flex flex-col lg:flex-row justify-center items-center gap-4 py-4 lg:py-8">
@@ -161,7 +181,7 @@ export default async function CasePage({ params }: Props) {
           </div>
 
           <div className="flex-1">
-            <IntroParagraph content={data.intro_paragraph} />
+            <IntroParagraph content={data.description ?? ''} />
           </div>
         </div>
 
@@ -219,8 +239,8 @@ export default async function CasePage({ params }: Props) {
 
           {skins &&
             skins.map((skin, i) => {
-              if (skin.weapon_type === 'Knives') return null
-              return <SkinCard key={skin.id} weapon={skin.weapon_slug} skin={skin} index={i} />
+              if (skin.categoryName === 'Knives') return null
+              return <SkinCard key={skin.id} weapon={skin.weaponSlug ?? ''} skin={skin} index={i} />
             })}
         </div>
       </div>

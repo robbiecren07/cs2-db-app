@@ -1,11 +1,11 @@
 'use client'
 
-import { Agents, Collectables, Patches } from '@/types/custom'
+import { AgentWithDetails, CollectableWithRarity, GraffitiWithRarity, KeychainWithRarity, MusicKitWithRarity, PatchWithRarity, StickerWithRarity } from '@/types/custom'
 import { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface Props {
-  item: Patches | Agents | Collectables
+  item: PatchWithRarity | AgentWithDetails | CollectableWithRarity | KeychainWithRarity | StickerWithRarity | GraffitiWithRarity | MusicKitWithRarity
 }
 
 interface Prices {
@@ -39,7 +39,7 @@ export default function GlobalMarketTable({ item }: Props) {
     if (prices[key]) {
       return (
         <a
-          className="transition-colors hover:text-purple-500"
+          className="transition-colors hover:text-violet-400"
           href={prices[key]?.url}
           target="_blank"
           rel="noopener noreferrer"

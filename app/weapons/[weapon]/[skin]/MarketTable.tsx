@@ -1,11 +1,11 @@
 'use client'
 
-import { Skins } from '@/types/custom'
+import { SkinWithDetails } from '@/types/custom'
 import { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface Props {
-  skin: Skins
+  skin: SkinWithDetails
 }
 
 interface Prices {
@@ -45,7 +45,7 @@ export default function MarketTable({ skin }: Props) {
     if (prices[key]) {
       return (
         <a
-          className="transition-colors hover:text-purple-500"
+          className="transition-colors hover:text-violet-400"
           href={prices[key]?.url}
           target="_blank"
           rel="noopener noreferrer"

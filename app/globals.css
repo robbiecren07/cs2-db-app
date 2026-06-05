@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -55,8 +58,6 @@
 
   --grid-template-columns-card: repeat(auto-fill, minmax(200px, 1fr));
 
-  --drop-shadow-custom: 2px 4px 5px #000;
-
   @keyframes accordion-down {
     from {
       height: 0;
@@ -79,9 +80,6 @@
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
 */
 @layer base {
   *,
@@ -94,35 +92,53 @@
 }
 
 @utility card {
-  @apply h-full bg-muted border-t-4 rounded-lg transition-all hover:bg-accent hover:drop-shadow-custom focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  @apply h-full bg-muted border-t-4 rounded-lg transition-all duration-200 cursor-pointer
+    hover:bg-accent hover:-translate-y-px
+    focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  &:hover {
+    box-shadow:
+      0 12px 36px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+}
+
+@utility btn-primary {
+  @apply inline-flex items-center justify-center whitespace-nowrap h-11 px-8 rounded-md
+    bg-violet-600 text-white font-medium tracking-wide
+    transition-all duration-200
+    hover:bg-violet-500
+    focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  &:hover {
+    box-shadow: 0 0 24px rgba(139, 92, 246, 0.35);
+  }
 }
 
 @layer base {
   :root {
-    --background: #0b0c0d;
-    --foreground: #fff;
-    --bg-secondary: #161618;
-    --bg-tertiary: #1c1c1f;
-    --bg-quaternary: #232326;
-    --bg-quinary: #28282c;
-    --border: #23252a;
-    --border-s: #292b30;
-    --border-t: #2c2e33;
-    --text-primary: #fff;
-    --text-secondary: #e3e4e6;
-    --text-tertiary: #969799;
-    --text-quaternary: #595a5c;
+    /* Backgrounds — cool navy-black palette */
+    --background: #08090f;
+    --foreground: #f0f2ff;
+    --bg-secondary: #0d0e17;
+    --bg-tertiary: #131420;
+    --bg-quaternary: #181929;
+    --bg-quinary: #1d1f32;
+
+    /* Borders */
+    --border: #1a1c2e;
+    --border-s: #202340;
+    --border-t: #272a4a;
+
+    /* Text */
+    --text-primary: #f0f2ff;
+    --text-secondary: #c4c8e2;
+    --text-tertiary: #7a7e9e;
+    --text-quaternary: #484c68;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
 
-    --input: #232326;
-    --border: #23252a;
-    --border-s: #292b30;
-    --border-t: #2c2e33;
-    /* --border: 215 27.9% 16.9%; */
-    /* --input: 215 27.9% 16.9%; */
-    --ring: 216 12.2% 83.9%;
+    --input: #181929;
+    --ring: 258 89% 66%;
 
     --radius: 0.5rem;
   }

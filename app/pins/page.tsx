@@ -1,15 +1,20 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
-import { rarityOrder } from '@/lib/helpers'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, asc } from 'drizzle-orm'
+import { rarityOrderExpr } from '@/db/ordering'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import IntroParagraph from '@/components/IntroParagraph'
-import ItemCard from './ItemCard'
-import type { Collectables } from '@/types/custom'
+import InfiniteItemGrid from '@/components/InfiniteItemGrid'
+import { fetchMorePins } from './actions'
+import type { InfiniteBaseItem } from '@/types/custom'
 import type { Metadata } from 'next'
+
+const PAGE_SIZE = 52
 
 export const metadata: Metadata = {
   title: 'CS2 Pins | Browse All Counter-Strike 2 Pins',
@@ -19,36 +24,37 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Collectables[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM collectables WHERE type = 'Pin' ORDER BY name ASC`
-
-  if (!data) {
-    return null
-  }
-
-  return data.sort((a, b) => (rarityOrder[a.rarity_id] || 999) - (rarityOrder[b.rarity_id] || 999)) as Collectables[]
+async function getData(): Promise<InfiniteBaseItem[]> {
+  const data = await db
+    .select({
+      id: schema.collectables.id,
+      name: schema.collectables.name,
+      shortName: schema.collectables.shortName,
+      slug: schema.collectables.slug,
+      image: schema.collectables.image,
+      rarityId: schema.collectables.rarityId,
+      rarityName: schema.rarities.name,
+      rarityColor: schema.rarities.color,
+    })
+    .from(schema.collectables)
+    .leftJoin(schema.rarities, eq(schema.collectables.rarityId, schema.rarities.id))
+    .where(eq(schema.collectables.type, 'Pin'))
+    .orderBy(rarityOrderExpr(schema.collectables.rarityId), asc(schema.collectables.name))
+    .limit(PAGE_SIZE)
+  return data
 }
 
 export default async function PinsPage() {
   const data = await getData()
 
-  if (!data) {
-    return notFound()
-  }
+  if (!data.length) return notFound()
 
   return (
     <InternalContainer>
       <BreadCrumbBar active="Pins" />
       <PageTitle title="All CS2 Pins" />
-
-      <IntroParagraph content="Welcome to the collectable Pins section of CS2 Skins DB. Here, you can explore a comprehensive collection of pins available for agents in Counter-Strike 2. Each patch offers a unique design, allowing you to customize your agents and add a personal touch to your gameplay. Whether you're looking for rare pins to complete your collection or want to stay updated with the latest additions, our detailed database provides all the information you need. Dive into the world of CS2 Agent pins and discover the perfect customizations to enhance your gaming experience." />
-
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8 lg:py-12">
-        {data.map((item, index) => {
-          return <ItemCard key={item.id} item={item} index={index} />
-        })}
-      </div>
+      <IntroParagraph content="Welcome to the collectable Pins section of CS2 Skins DB. Here, you can explore a comprehensive collection of pins available in Counter-Strike 2. Each pin offers a unique design with varying rarity levels. Dive in and discover your next favorite pin." />
+      <InfiniteItemGrid initialItems={data} fetchMore={fetchMorePins} basePath="/pins" pageSize={PAGE_SIZE} />
     </InternalContainer>
   )
 }

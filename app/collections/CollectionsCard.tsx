@@ -1,10 +1,10 @@
-import { Collections } from '@/types/custom'
+import { Collection } from '@/types/custom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CardContent, Card } from '@/components/ui/card'
 
 interface Props {
-  collection: Collections
+  collection: Collection
   index: number
 }
 

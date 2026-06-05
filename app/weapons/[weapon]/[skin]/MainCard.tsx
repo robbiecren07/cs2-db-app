@@ -1,15 +1,15 @@
-import { RarityId, Skins } from '@/types/custom'
+import { RarityId, SkinWithDetails } from '@/types/custom'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 
 interface Props {
-  skin: Skins
+  skin: SkinWithDetails
 }
 
 export default function MainCard({ skin }: Props) {
   return (
     <div
-      style={{ borderTopColor: skin.rarity_color ? skin.rarity_color : '' }}
+      style={{ borderTopColor: skin.rarityColor ? skin.rarityColor : '' }}
       className="w-full bg-muted p-4 space-y-4 rounded-lg border-t-4"
     >
       {skin.image && (
@@ -23,9 +23,9 @@ export default function MainCard({ skin }: Props) {
         />
       )}
       <div className="flex flex-wrap gap-2">
-        {skin.rarity_id && (
-          <Badge variant={skin.rarity_id as RarityId} aria-label={`Rarity: ${skin.rarity_name}`}>
-            {skin.rarity_name}
+        {skin.rarityId && (
+          <Badge variant={skin.rarityId as RarityId} aria-label={`Rarity: ${skin.rarityName}`}>
+            {skin.rarityName}
           </Badge>
         )}
         {skin.stattrak && (

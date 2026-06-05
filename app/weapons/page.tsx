@@ -1,14 +1,17 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
 import { notFound } from 'next/navigation'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { asc } from 'drizzle-orm'
 import InternalContainer from '@/components/InternalContainer'
 import { BreadCrumbBar } from '@/components/BreadCrumbBar'
 import PageTitle from '@/components/PageTitle'
 import { WeaponCard } from './WeaponCard'
 import IntroParagraph from '@/components/IntroParagraph'
-import type { Weapons } from '@/types/custom'
+import type { Weapon } from '@/types/custom'
 import type { Metadata } from 'next'
+
 
 export const metadata: Metadata = {
   title: 'Browse All CS2 Weapons | Counter-Strike 2 Weapon Types',
@@ -18,15 +21,9 @@ export const metadata: Metadata = {
   },
 }
 
-async function getData(): Promise<Weapons[] | null> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = await sql`SELECT * FROM weapons ORDER BY name ASC`
-
-  if (!data) {
-    return null
-  }
-
-  return data as Weapons[]
+async function getData(): Promise<Weapon[] | null> {
+  const data = await db.select().from(schema.weapons).orderBy(asc(schema.weapons.name))
+  return data.length ? data : null
 }
 
 export default async function WeaponsPage() {
@@ -72,7 +69,7 @@ export default async function WeaponsPage() {
       <IntroParagraph content="Welcome to the comprehensive guide to all weapon types in Counter-Strike 2. This page offers a detailed overview of every weapon category available in the game, from pistols and rifles to SMGs and heavy weapons. Browse through each type to find specific weapons, complete with images and links to detailed pages. Whether you’re looking to refine your loadout or discover new favorites, our database provides all the information you need to excel in CS2." />
 
       <div className="w-full space-y-4 pt-8 lg:pt-12">
-        <h2 className="text-3xl font-bold">Pistols</h2>
+        <h2 className="text-3xl font-bold border-l-2 border-violet-500 pl-4">Pistols</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {pistols.map((weapon) => (
             <WeaponCard key={weapon.id} weapon={weapon} />
@@ -80,8 +77,8 @@ export default async function WeaponsPage() {
         </div>
       </div>
 
-      <div className="w-full space-y-4 pt-8 lg:pt-12">
-        <h2 className="text-3xl font-bold">SMGs</h2>
+      <div className="w-full space-y-4 border-t border-[#1a1c2e] pt-8 lg:pt-12">
+        <h2 className="text-3xl font-bold border-l-2 border-violet-500 pl-4">SMGs</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {smgs.map((weapon) => (
             <WeaponCard key={weapon.id} weapon={weapon} />
@@ -89,8 +86,8 @@ export default async function WeaponsPage() {
         </div>
       </div>
 
-      <div className="w-full space-y-4 pt-8 lg:pt-12">
-        <h2 className="text-3xl font-bold">Rifles</h2>
+      <div className="w-full space-y-4 border-t border-[#1a1c2e] pt-8 lg:pt-12">
+        <h2 className="text-3xl font-bold border-l-2 border-violet-500 pl-4">Rifles</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {rifles.map((weapon) => (
             <WeaponCard key={weapon.id} weapon={weapon} />
@@ -98,8 +95,8 @@ export default async function WeaponsPage() {
         </div>
       </div>
 
-      <div className="w-full space-y-4 pt-8 lg:pt-12">
-        <h2 className="text-3xl font-bold">Heavy</h2>
+      <div className="w-full space-y-4 border-t border-[#1a1c2e] pt-8 lg:pt-12">
+        <h2 className="text-3xl font-bold border-l-2 border-violet-500 pl-4">Heavy</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {heavy.map((weapon) => (
             <WeaponCard key={weapon.id} weapon={weapon} />
@@ -107,8 +104,8 @@ export default async function WeaponsPage() {
         </div>
       </div>
 
-      <div className="w-full space-y-4 pt-8 lg:pt-12">
-        <h2 className="text-3xl font-bold">Knives</h2>
+      <div className="w-full space-y-4 border-t border-[#1a1c2e] pt-8 lg:pt-12">
+        <h2 className="text-3xl font-bold border-l-2 border-violet-500 pl-4">Knives</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {knives.map((weapon) => (
             <WeaponCard key={weapon.id} weapon={weapon} />
@@ -116,8 +113,8 @@ export default async function WeaponsPage() {
         </div>
       </div>
 
-      <div className="w-full space-y-4 pt-8 lg:pt-12">
-        <h2 className="text-3xl font-bold">Special</h2>
+      <div className="w-full space-y-4 border-t border-[#1a1c2e] pt-8 lg:pt-12">
+        <h2 className="text-3xl font-bold border-l-2 border-violet-500 pl-4">Special</h2>
         <div className="flex flex-wrap justify-center gap-4">
           {special.map((weapon) => (
             <WeaponCard key={weapon.id} weapon={weapon} />

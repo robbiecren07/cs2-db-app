@@ -1,9 +1,9 @@
-import { Collections } from '@/types/custom'
+import { Collection } from '@/types/custom'
 import Image from 'next/image'
 import Link from 'next/link'
 
 interface Props {
-  collection: Collections
+  collection: Collection
 }
 
 export default function GlobalCollectionCard({ collection }: Props) {
@@ -36,7 +36,7 @@ export default function GlobalCollectionCard({ collection }: Props) {
             />
           )}
           <h3
-            className="text-sm text-center transition-colors group-hover:text-purple-600"
+            className="text-sm text-center transition-colors group-hover:text-violet-400"
             aria-label={`Collection name: ${collection.name}`}
           >
             {collection.name}

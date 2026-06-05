@@ -1,10 +1,10 @@
-import { SouvenirPackages } from '@/types/custom'
+import { Crate } from '@/types/custom'
 import Image from 'next/image'
 import { CardContent, Card } from '@/components/ui/card'
 import Link from 'next/link'
 
 interface Props {
-  item: SouvenirPackages
+  item: Crate
   index: number
 }
 

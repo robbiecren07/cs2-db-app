@@ -124,7 +124,7 @@ const components: {
 
 const otherLinks: {
   title: string
-  subItems: Array<{ title: string; slug: string; image: string }>
+  subItems: Array<{ title: string; slug: string; image?: string }>
 }[] = [
   {
     title: 'Other',
@@ -135,6 +135,10 @@ const otherLinks: {
       { title: 'Agents', slug: 'agents', image: 'customplayer_ctm_fbi_variantf_png.png' },
       { title: 'Pins', slug: 'pins', image: 'collectible_pin_guardian_2_png.png' },
       { title: 'Patches', slug: 'patches', image: 'patch_howl_png.png' },
+      { title: 'Keychains', slug: 'keychains', image: 'missing_link_charm_collection.webp' },
+      { title: 'Stickers', slug: 'stickers', image: 'stickers.webp' },
+      { title: 'Graffiti', slug: 'graffiti', image: 'graffiti.webp' },
+      { title: 'Music Kits', slug: 'music-kits', image: 'music-kit.webp' },
     ],
   },
 ]
@@ -256,14 +260,16 @@ export function Menu() {
                       href={`/${subItem.slug}`}
                       aria-label={`Learn more about ${subItem.title}`}
                     >
-                      <Image
-                        src={`/${subItem.image}`}
-                        width={53}
-                        height={40}
-                        className="h-10 aspect-video object-contain"
-                        alt={`${subItem.title} - vanilla skin`}
-                        priority
-                      />
+                      {subItem.image && (
+                        <Image
+                          src={`/${subItem.image}`}
+                          width={53}
+                          height={40}
+                          className="h-10 aspect-video object-contain"
+                          alt={`${subItem.title} - vanilla skin`}
+                          priority
+                        />
+                      )}
                     </ListItem>
                   ))}
                 </ul>
@@ -284,7 +290,7 @@ export function Menu() {
           />
         </SheetTrigger>
         <SheetContent aria-label="Mobile Navigation Menu">
-          <nav className="h-full pt-2 pr-3 text-sm overflow-y-auto" aria-label="Mobile Navigation">
+          <nav className="h-full pt-2 px-3 text-sm overflow-y-auto" aria-label="Mobile Navigation">
             <ul>
               {components.map((component) => (
                 <li key={component.title}>

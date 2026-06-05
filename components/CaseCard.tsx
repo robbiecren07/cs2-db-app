@@ -1,10 +1,10 @@
-import { Crates } from '@/types/custom'
+import { Crate } from '@/types/custom'
 import Image from 'next/image'
 import { CardContent, Card } from '@/components/ui/card'
 import Link from 'next/link'
 
 interface Props {
-  crate: Crates
+  crate: Crate
   index?: number
 }
 
@@ -15,7 +15,7 @@ export function CaseCard({ crate, index }: Props) {
     name: crate.name,
     image: crate.image || '',
     url: `https://cs2skinsdb.com/cases/${crate.slug}`,
-    releaseDate: crate.first_sale_date,
+    releaseDate: crate.firstSaleDate,
     description: `Discover the ${crate.name}, a Counter-Strike 2 case featuring unique skins.`,
     brand: {
       '@type': 'Thing',
@@ -67,9 +67,9 @@ export function CaseCard({ crate, index }: Props) {
             </div>
             <span
               className="text-sm text-accent-foreground font-light"
-              aria-label={`Release date: ${crate.first_sale_date}`}
+              aria-label={`Release date: ${crate.firstSaleDate}`}
             >
-              Released: {crate.first_sale_date}
+              Released: {crate.firstSaleDate}
             </span>
           </CardContent>
         </Card>

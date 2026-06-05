@@ -1,16 +1,16 @@
-import { Case } from '@/types/custom'
+import { CaseRef } from '@/types/custom'
 import Image from 'next/image'
 import Link from 'next/link'
 import slugify from 'slugify'
 
 interface Props {
   item: {
-    in_cases: Case[]
+    inCases: CaseRef[]
   }
 }
 
 export default function GlobalCaseCard({ item }: Props) {
-  if (!item.in_cases || item.in_cases.length === 0) return null
+  if (!item.inCases || item.inCases.length === 0) return null
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function GlobalCaseCard({ item }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            item.in_cases.map((caseItem) => ({
+            item.inCases.map((caseItem) => ({
               '@context': 'https://schema.org',
               '@type': 'Product',
               name: caseItem.name,
@@ -33,35 +33,35 @@ export default function GlobalCaseCard({ item }: Props) {
         }}
       />
 
-      {item.in_cases.map((item: Case) => {
+      {item.inCases.map((caseItem: CaseRef) => {
         let caseSlug = 'cases'
-        if (item.name.includes('Souvenir')) {
+        if (caseItem.name.includes('Souvenir')) {
           caseSlug = 'souvenir-packages'
         }
         return (
-          <div key={item.id} className="w-1/3 p-2 group">
+          <div key={caseItem.id} className="w-1/3 p-2 group">
             <Link
-              href={`/${caseSlug}/${slugify(item.name, { lower: true, strict: true })}`}
+              href={`/${caseSlug}/${slugify(caseItem.name, { lower: true, strict: true })}`}
               className="block w-full"
               target="_self"
               prefetch={false}
-              aria-label={`View details for ${item.name}`}
+              aria-label={`View details for ${caseItem.name}`}
             >
               <div className="w-full flex flex-col items-center gap-2">
-                {item.image && (
+                {caseItem.image && (
                   <Image
-                    src={item.image}
+                    src={caseItem.image}
                     width="120"
                     height="100"
                     className="aspect-4/3 object-contain"
-                    alt={item.name}
+                    alt={caseItem.name}
                   />
                 )}
                 <h3
-                  className="text-sm text-center transition-colors group-hover:text-purple-600"
-                  aria-label={`Case name: ${item.name}`}
+                  className="text-sm text-center transition-colors group-hover:text-violet-400"
+                  aria-label={`Case name: ${caseItem.name}`}
                 >
-                  {item.name}
+                  {caseItem.name}
                 </h3>
               </div>
             </Link>

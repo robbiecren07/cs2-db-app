@@ -1,6 +1,8 @@
 'use cache'
 
-import { neon } from '@neondatabase/serverless'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, asc, and } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import InternalContainer from '@/components/InternalContainer'
 import PageTitle from '@/components/PageTitle'
@@ -10,40 +12,68 @@ import FloatBar from '@/components/FloatBar'
 import MarketTable from '@/components/MarketTable'
 import GlobalCaseCard from '@/components/GlobalCaseCard'
 import MiniGloveCard from './MiniGloveCard'
-import type { Case, Gloves } from '@/types/custom'
+import type { SkinWithDetails, CaseRef } from '@/types/custom'
 import type { Metadata } from 'next'
 
 interface Data {
-  glove: Gloves | null
-  collectionGloves: Gloves[]
+  glove: SkinWithDetails | null
+  collectionGloves: SkinWithDetails[]
 }
 
 type Props = {
   params: { glove: string }
 }
 
+
+const gloveSelect = {
+  id: schema.skins.id,
+  name: schema.skins.name,
+  slug: schema.skins.slug,
+  shortSlug: schema.skins.shortSlug,
+  shortName: schema.skins.shortName,
+  weaponId: schema.skins.weaponId,
+  weaponName: schema.skins.weaponName,
+  weaponSlug: schema.skins.weaponSlug,
+  categoryId: schema.skins.categoryId,
+  categoryName: schema.skins.categoryName,
+  rarityId: schema.skins.rarityId,
+  patternId: schema.skins.patternId,
+  patternName: schema.skins.patternName,
+  paintIndex: schema.skins.paintIndex,
+  minFloat: schema.skins.minFloat,
+  maxFloat: schema.skins.maxFloat,
+  stattrak: schema.skins.stattrak,
+  souvenir: schema.skins.souvenir,
+  featured: schema.skins.featured,
+  teamId: schema.skins.teamId,
+  description: schema.skins.description,
+  marketHashName: schema.skins.marketHashName,
+  legacyModel: schema.skins.legacyModel,
+  image: schema.skins.image,
+  rarityName: schema.rarities.name,
+  rarityColor: schema.rarities.color,
+}
+
 export async function generateStaticParams() {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM gloves ORDER BY name ASC`) as Gloves[]
-
-  if (!data || data.length === 0) {
-    return []
-  }
-
-  return data.map((glove) => ({
-    glove: glove.slug,
-  }))
+  const data = await db
+    .select({ slug: schema.skins.slug })
+    .from(schema.skins)
+    .where(eq(schema.skins.categoryName, 'Gloves'))
+    .orderBy(asc(schema.skins.name))
+  return data.map((g) => ({ glove: g.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { glove } = await params
 
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM gloves WHERE slug = ${glove} LIMIT 1`) as Gloves[]
+  const data = await db
+    .select(gloveSelect)
+    .from(schema.skins)
+    .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+    .where(and(eq(schema.skins.slug, glove), eq(schema.skins.categoryName, 'Gloves')))
+    .limit(1)
 
-  if (!data) {
-    return {}
-  }
+  if (!data.length) return {}
 
   return {
     title: `${data[0].name} | CS2 Gloves | Counter-Strike 2 Skin`,
@@ -54,7 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       images: [
         {
-          url: data[0].image,
+          url: data[0].image ?? '',
           width: 512,
           height: 384,
           alt: `${data[0].name} skin modal`,
@@ -65,21 +95,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getData(glove: string): Promise<Data> {
-  const sql = neon(process.env.DATABASE_URL!)
-  const data = (await sql`SELECT * FROM gloves WHERE slug = ${glove} LIMIT 1`) as Gloves[]
+  const gloveData = await db
+    .select(gloveSelect)
+    .from(schema.skins)
+    .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+    .where(and(eq(schema.skins.slug, glove), eq(schema.skins.categoryName, 'Gloves')))
+    .limit(1)
 
-  if (!data || data.length === 0) {
-    return { glove: null, collectionGloves: [] }
-  }
+  if (!gloveData.length) return { glove: null, collectionGloves: [] }
 
-  const collectionGloves =
-    await sql`SELECT * FROM gloves WHERE weapon_id_ref = ${data[0].weapon_id_ref} ORDER BY name ASC`
+  const { getCasesForSkin } = await import('@/db/queries')
+  const [collectionGlovesData, inCases] = await Promise.all([
+    db
+      .select(gloveSelect)
+      .from(schema.skins)
+      .leftJoin(schema.rarities, eq(schema.skins.rarityId, schema.rarities.id))
+      .where(and(eq(schema.skins.weaponId, gloveData[0].weaponId ?? ''), eq(schema.skins.categoryName, 'Gloves')))
+      .orderBy(asc(schema.skins.name)),
+    getCasesForSkin(gloveData[0].id),
+  ])
 
-  if (!collectionGloves || collectionGloves.length === 0) {
-    return { glove: data[0] as Gloves, collectionGloves: [] }
-  }
+  const gloveWithCases: SkinWithDetails = { ...gloveData[0], collectionName: null, collectionSlug: null, inCases }
+  const collectionGloves: SkinWithDetails[] = collectionGlovesData.map((g) => ({
+    ...g,
+    collectionName: null,
+    collectionSlug: null,
+  }))
 
-  return { glove: data[0] as Gloves, collectionGloves: collectionGloves as Gloves[] }
+  return { glove: gloveWithCases, collectionGloves }
 }
 
 export default async function GlovePage({ params }: { params: { glove: string } }) {
@@ -89,8 +132,6 @@ export default async function GlovePage({ params }: { params: { glove: string } 
   if (!data) {
     return notFound()
   }
-
-  const in_cases: Case[] = typeof data.in_cases === 'string' ? JSON.parse(data.in_cases) : data.in_cases
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -105,7 +146,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
       '@type': 'Thing',
       name: 'Counter-Strike 2',
     },
-    sku: data.paint_index,
+    sku: data.paintIndex,
     offers: {
       '@type': 'AggregateOffer',
       lowPrice: 'N/A',
@@ -121,7 +162,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
       {
         '@type': 'PropertyValue',
         name: 'Float Value',
-        value: `${data.min_float} - ${data.max_float}`,
+        value: `${data.minFloat} - ${data.maxFloat}`,
       },
     ],
     isRelatedTo: collectionGloves.map((glove) => ({
@@ -167,8 +208,8 @@ export default async function GlovePage({ params }: { params: { glove: string } 
               href={`https://steamcommunity.com/market/listings/730/${encodeURIComponent(
                 `${data.name} (Minimal Wear)`
               )}`}
-              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
+              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow noreferrer"
@@ -181,8 +222,8 @@ export default async function GlovePage({ params }: { params: { glove: string } 
               href={`https://dmarket.com/ingame-items/item-list/csgo-skins?title=${encodeURIComponent(
                 data.name
               )}&ref=YJATPCd833`}
-              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold 
-              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden 
+              className="h-12 px-4 lg:px-6 py-2 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-base font-semibold
+              ring-offset-background transition-colors bg-foreground text-background hover:bg-secondary-foreground focus-visible:outline-hidden
               focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               target="_blank"
               rel="nofollow"
@@ -193,13 +234,13 @@ export default async function GlovePage({ params }: { params: { glove: string } 
             </a>
           </div>
 
-          <FloatBar minFloat={data.min_float} maxFloat={data.max_float} />
+          <FloatBar minFloat={data.minFloat} maxFloat={data.maxFloat} />
         </div>
 
         <div className="shrink basis-full lg:basis-1/2 self-stretch px-3 max-lg:order-3">
-          {in_cases.length ? (
+          {data.inCases && data.inCases.length > 0 ? (
             <div className="w-full flex flex-wrap justify-center p-4 bg-muted rounded-lg">
-              {in_cases.length && <GlobalCaseCard item={{ in_cases }} />}
+              <GlobalCaseCard item={{ inCases: data.inCases ?? [] }} />
             </div>
           ) : null}
         </div>
@@ -212,9 +253,9 @@ export default async function GlovePage({ params }: { params: { glove: string } 
                 {data.description.split('\\n')[0]}
               </p>
             )}
-            {data.paint_index && (
+            {data.paintIndex && (
               <p>
-                <span className="font-medium text-secondary-foreground">Finish Catalog:</span> {data.paint_index}
+                <span className="font-medium text-secondary-foreground">Finish Catalog:</span> {data.paintIndex}
               </p>
             )}
           </div>
@@ -222,7 +263,7 @@ export default async function GlovePage({ params }: { params: { glove: string } 
 
         {collectionGloves && (
           <div className="shrink basis-full self-stretch flex flex-col gap-4 px-3 pt-6 lg:pt-10 max-lg:order-5">
-            <h2 className="text-2xl font-medium pt-4">{data.weapon_name}</h2>
+            <h2 className="text-2xl font-medium pt-4">{data.weaponName}</h2>
             <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-3">
               {collectionGloves.map((item) => (
                 <MiniGloveCard key={item.id} item={item} />

@@ -1,98 +1,46 @@
-import { neon } from '@neondatabase/serverless'
+import { db } from '@/db'
+import * as schema from '@/db/schema'
+import { eq, inArray } from 'drizzle-orm'
 import type { MetadataRoute } from 'next'
-import type {
-  Agents,
-  Collectables,
-  Collections,
-  Crates,
-  Gloves,
-  Patches,
-  Skins,
-  SouvenirPackages,
-  Weapons,
-} from '@/types/custom'
 
 const BASE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : 'http://localhost:3000'
 
-interface Data {
-  agents: Agents[]
-  crates: Crates[]
-  collections: Collections[]
-  gloves: Gloves[]
-  patches: Patches[]
-  collectables: Collectables[]
-  packages: SouvenirPackages[]
-  weapons: Weapons[]
-  skins: Skins[]
-}
-
 type ChangeFrequency = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
 
-export async function getData(): Promise<Data> {
-  const sql = neon(process.env.DATABASE_URL!)
-  try {
-    const [
-      agentRes,
-      cratesRes,
-      collectionsRes,
-      glovesRes,
-      patchesRes,
-      collectablesRes,
-      packagesRes,
-      weaponsRes,
-      skinsRes,
-    ] = await Promise.all([
-      sql`SELECT slug FROM agents`,
-      sql`SELECT slug FROM crates`,
-      sql`SELECT slug FROM collections`,
-      sql`SELECT slug FROM gloves`,
-      sql`SELECT slug FROM patches`,
-      sql`SELECT slug FROM collectables WHERE type = 'Pin'`,
-      sql`SELECT slug FROM souvenir_packages`,
-      sql`SELECT slug FROM weapons`,
-      sql`SELECT short_slug, weapon_slug FROM skins`,
-    ])
-
-    return {
-      agents: agentRes as Agents[],
-      crates: cratesRes as Crates[],
-      collections: collectionsRes as Collections[],
-      gloves: glovesRes as Gloves[],
-      patches: patchesRes as Patches[],
-      collectables: collectablesRes as Collectables[],
-      packages: packagesRes as SouvenirPackages[],
-      weapons: weaponsRes as Weapons[],
-      skins: skinsRes as Skins[],
-    }
-  } catch (error) {
-    console.error('Error fetching data for sitemap:', error)
-    return {
-      agents: [],
-      crates: [],
-      collections: [],
-      gloves: [],
-      patches: [],
-      collectables: [],
-      packages: [],
-      weapons: [],
-      skins: [],
-    }
-  }
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { agents, crates, collections, gloves, patches, collectables, packages, weapons, skins } = await getData()
+  const [agents, crates, collections, patches, collectables, packages, weapons, skins, gloves, keychains, stickers, graffiti, musicKits] = await Promise.all([
+    db.select({ slug: schema.agents.slug }).from(schema.agents),
+    db.select({ slug: schema.crates.slug }).from(schema.crates).where(eq(schema.crates.type, 'Case')),
+    db.select({ slug: schema.collections.slug }).from(schema.collections),
+    db.select({ slug: schema.patches.slug }).from(schema.patches),
+    db.select({ slug: schema.collectables.slug }).from(schema.collectables).where(eq(schema.collectables.type, 'Pin')),
+    db
+      .select({ slug: schema.crates.slug })
+      .from(schema.crates)
+      .where(inArray(schema.crates.type, ['Souvenir', 'Souvenir Highlight'])),
+    db.select({ slug: schema.weapons.slug }).from(schema.weapons),
+    db.select({ shortSlug: schema.skins.shortSlug, weaponSlug: schema.skins.weaponSlug }).from(schema.skins),
+    db.select({ slug: schema.skins.slug }).from(schema.skins).where(eq(schema.skins.categoryName, 'Gloves')),
+    db.select({ slug: schema.keychains.slug }).from(schema.keychains),
+    db.select({ slug: schema.stickers.slug }).from(schema.stickers),
+    db.select({ slug: schema.graffiti.slug }).from(schema.graffiti),
+    db.select({ slug: schema.musicKits.slug }).from(schema.musicKits),
+  ])
 
   const rootPages = [
     `${BASE_URL}/agents`,
     `${BASE_URL}/cases`,
     `${BASE_URL}/collections`,
     `${BASE_URL}/gloves`,
+    `${BASE_URL}/graffiti`,
+    `${BASE_URL}/keychains`,
+    `${BASE_URL}/music-kits`,
     `${BASE_URL}/patches`,
     `${BASE_URL}/pins`,
     `${BASE_URL}/souvenir-packages`,
+    `${BASE_URL}/stickers`,
     `${BASE_URL}/weapons`,
   ]
 
@@ -101,11 +49,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...crates.map(({ slug }) => `${BASE_URL}/cases/${slug}`),
     ...collections.map(({ slug }) => `${BASE_URL}/collections/${slug}`),
     ...gloves.map(({ slug }) => `${BASE_URL}/gloves/${slug}`),
+    ...graffiti.map(({ slug }) => `${BASE_URL}/graffiti/${slug}`),
+    ...keychains.map(({ slug }) => `${BASE_URL}/keychains/${slug}`),
+    ...musicKits.map(({ slug }) => `${BASE_URL}/music-kits/${slug}`),
     ...patches.map(({ slug }) => `${BASE_URL}/patches/${slug}`),
     ...collectables.map(({ slug }) => `${BASE_URL}/pins/${slug}`),
     ...packages.map(({ slug }) => `${BASE_URL}/souvenir-packages/${slug}`),
+    ...stickers.map(({ slug }) => `${BASE_URL}/stickers/${slug}`),
     ...weapons.map(({ slug }) => `${BASE_URL}/weapons/${slug}`),
-    ...skins.map((skin) => `${BASE_URL}/weapons/${skin.weapon_slug}/${skin.short_slug}`),
+    ...skins.map((skin) => `${BASE_URL}/weapons/${skin.weaponSlug ?? ''}/${skin.shortSlug}`),
   ]
 
   return [

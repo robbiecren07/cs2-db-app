@@ -1,8 +1,9 @@
-import { Montserrat } from 'next/font/google'
+import { Montserrat, Inter } from 'next/font/google'
 import localFont from 'next/font/local'
 import Head from 'next/head'
 import { Suspense } from 'react'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { cn } from '@/lib/utils'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { siteData } from '@/lib/json'
@@ -43,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <html lang="en" className={`${montserrat.variable} ${bigShouldersDisplay.variable}`}>
+    <html lang="en" className={cn(montserrat.variable, bigShouldersDisplay.variable, 'font-sans')}>
       <Head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteData) }} />
